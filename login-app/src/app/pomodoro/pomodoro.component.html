@@ -1,0 +1,74 @@
+<div class="pomodoro">
+  <div class="dots">
+    <span *ngFor="let d of dots; let idx = index"
+          class="dot"
+          [class.done]="idx + 1 <= completedIterations"
+          [class.active]="idx + 1 === currentIteration && phase === 'focus'"
+          title="Iteración {{ idx + 1 }}">
+    </span>
+  </div>
+
+  <div class="timer" [class.break-phase]="phase !== 'focus'">
+    <svg viewBox="0 0 120 120" class="circle">
+      <circle cx="60" cy="60" r="54" class="bg" />
+      <circle cx="60" cy="60" r="54" class="progress"
+              [style.stroke-dasharray]="339.292"
+              [style.stroke-dashoffset]="(339.292 * (1 - percentage / 100))"/>
+    </svg>
+    <div class="center">
+      <div class="phase" [class.focus]="phase === 'focus'" [class.break]="phase !== 'focus'">
+        {{ phase === 'focus' ? 'Focus' : (phase === 'short' ? 'Pausa corta' : 'Pausa larga') }}
+      </div>
+      <div class="time">{{ displayTime }}</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" (click)="toggleRun()">
+      {{ isRunning ? 'Pausa' : 'Iniciar' }}
+    </button>
+    <button class="btn" (click)="skip()">Saltar</button>
+    <button class="btn" (click)="toggleSettings()">Configurar</button>
+    <label class="auto-continue">
+      <input type="checkbox" [(ngModel)]="autoContinue">
+      Ejecución continua
+    </label>
+  </div>
+
+  <div class="settings" *ngIf="showSettings">
+    <div class="row">
+      <label>Focus (min)</label>
+      <input type="number" [(ngModel)]="focusMinutes" min="1">
+    </div>
+    <div class="row">
+      <label>Pausa corta (min)</label>
+      <input type="number" [(ngModel)]="shortBreakMinutes" min="1">
+    </div>
+    <div class="row">
+      <label>Pausa larga (min)</label>
+      <input type="number" [(ngModel)]="longBreakMinutes" min="1">
+    </div>
+    <div class="row">
+      <label>Iteraciones</label>
+      <input type="number" [(ngModel)]="iterationsPerCycle" min="1" max="10">
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" (click)="applySettings()">Aplicar</button>
+    </div>
+  </div>
+
+  <div class="completion" *ngIf="showCompletion">
+    <div class="card">
+      <h3>¡Iteraciones completadas!</h3>
+      <p>¿Deseas continuar con más iteraciones o terminar la sesión?</p>
+      <div class="row">
+        <label>Iteraciones adicionales</label>
+        <input type="number" [(ngModel)]="extraIterations" min="1" max="20">
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" (click)="continueAfterCompletion()">Continuar</button>
+        <button class="btn" (click)="endSession()">Terminar sesión</button>
+      </div>
+    </div>
+  </div>
+</div>

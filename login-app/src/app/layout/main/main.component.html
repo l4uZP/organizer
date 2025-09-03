@@ -1,0 +1,39 @@
+<div class="app-shell" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-header" (click)="toggleSidebar()" title="Alternar menú">
+      <span class="logo-circle">A</span>
+      <span class="brand" *ngIf="!isSidebarCollapsed">App</span>
+    </div>
+    <nav class="nav">
+      <a routerLink="/app/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="icon">📊</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Dashboard</span>
+      </a>
+      <a routerLink="/app/calendario" routerLinkActive="active" class="nav-item">
+        <span class="icon">📅</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Calendario</span>
+      </a>
+      <a routerLink="/app/pomodoro" routerLinkActive="active" class="nav-item">
+        <span class="icon">⏱️</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Pomodoro</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div class="right">
+        <div class="profile" (click)="toggleProfileMenu()">
+          <img class="avatar" src="assets/temp-logo.svg" alt="Perfil">
+          <div class="menu" *ngIf="profileMenuOpen">
+            <button class="menu-item" (click)="goToSettings()">Configuraciones</button>
+            <button class="menu-item" (click)="logout()">Salir</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section class="page">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

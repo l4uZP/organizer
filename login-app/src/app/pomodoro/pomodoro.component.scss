@@ -1,0 +1,130 @@
+.pomodoro {
+  display: grid;
+  gap: 16px;
+  place-items: center;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3a3a3a;
+}
+
+.dot.active {
+  background: #2ecc71;
+}
+
+.dot.done {
+  background: #9be7ad;
+}
+
+.timer {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.circle {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.bg {
+  fill: none;
+  stroke: #243424;
+  stroke-width: 12;
+}
+
+.progress {
+  fill: none;
+  stroke: #2ecc71;
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.2s ease-in-out;
+}
+
+/* Reserved hook for future styling */
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
+
+.phase {
+  color: #a3e5b5;
+}
+
+.phase.break {
+  color: #f6c48b;
+}
+
+.time {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+}
+
+.auto-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.settings {
+  display: grid;
+  gap: 8px;
+  background: #1b1b1b;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px;
+  width: 320px;
+}
+
+.settings .row {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  align-items: center;
+  gap: 8px;
+}
+.completion {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: grid;
+  place-items: center;
+}
+
+.completion .card {
+  background: #1b1b1b;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+  width: 360px;
+  display: grid;
+  gap: 12px;
+}
+
+.completion .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Break color */
+.timer.break-phase .progress { stroke: #f39c12; }
+

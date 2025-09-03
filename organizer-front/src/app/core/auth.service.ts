@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+interface LoginResponse {
+  token: string;
+  user: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +17,7 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.readIsAuthenticated());
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   private readIsAuthenticated(): boolean {
     const hasLocal = typeof localStorage !== 'undefined' && !!localStorage.getItem(AuthService.AUTH_TOKEN_KEY);
@@ -19,13 +25,7 @@ export class AuthService {
     return hasLocal || hasSession;
   }
 
-  login(username: string, password: string, remember: boolean): boolean {
-    const isValid = username === 'admin' && password === 'admin';
-    if (!isValid) {
-      return false;
-    }
-
-    // Clear previous storage to avoid duplicates
+  login(username: string, password: string, remember: boolean): Observable<boolean> {
     try {
       sessionStorage.removeItem(AuthService.AUTH_TOKEN_KEY);
       sessionStorage.removeItem(AuthService.AUTH_USER_KEY);
@@ -33,13 +33,17 @@ export class AuthService {
       localStorage.removeItem(AuthService.AUTH_USER_KEY);
     } catch {}
 
-    const storage = remember ? localStorage : sessionStorage;
-    try {
-      storage.setItem(AuthService.AUTH_TOKEN_KEY, 'dummy-token');
-      storage.setItem(AuthService.AUTH_USER_KEY, username);
-    } catch {}
-    this.isAuthenticatedSubject.next(true);
-    return true;
+    const body = { username, password, remember };
+    return this.http.post<LoginResponse>('http://localhost:8080/api/v1/auth/login', body)
+      .pipe(map((res) => {
+        const storage = remember ? localStorage : sessionStorage;
+        try {
+          storage.setItem(AuthService.AUTH_TOKEN_KEY, res.token);
+          storage.setItem(AuthService.AUTH_USER_KEY, res.user);
+        } catch {}
+        this.isAuthenticatedSubject.next(true);
+        return true;
+      }));
   }
 
   logout(): void {

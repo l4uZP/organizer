@@ -14,6 +14,7 @@ import { AuthService } from '../core/auth.service';
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
+  loading = false;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -28,12 +29,19 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { username, password, rememberMe } = this.loginForm.value;
-      const ok = this.auth.login(username, password, rememberMe);
-      if (ok) {
-        this.router.navigateByUrl('/app');
-      } else {
-        alert('Credenciales inválidas. Use admin / admin');
-      }
+      this.loading = true;
+      this.auth.login(username, password, rememberMe).subscribe({
+        next: (ok) => {
+          this.loading = false;
+          if (ok) {
+            this.router.navigateByUrl('/app');
+          }
+        },
+        error: () => {
+          this.loading = false;
+          alert('Credenciales inválidas. Use admin / admin');
+        }
+      });
     }
   }
 }

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: organizer-postgres
+    environment:
+      POSTGRES_DB: organizer
+      POSTGRES_USER: organizer
+      POSTGRES_PASSWORD: organizer123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./organizer-back/migrations:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

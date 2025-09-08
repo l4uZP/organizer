@@ -24,7 +24,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 		FROM users 
 		WHERE usuario = $1
 	`
-	
+
 	user := &models.User{}
 	err := r.db.QueryRow(query, username).Scan(
 		&user.ID,
@@ -36,14 +36,14 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("error querying user: %v", err)
 	}
-	
+
 	return user, nil
 }
 
@@ -54,7 +54,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 		FROM users 
 		WHERE correo = $1
 	`
-	
+
 	user := &models.User{}
 	err := r.db.QueryRow(query, email).Scan(
 		&user.ID,
@@ -66,14 +66,14 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("error querying user: %v", err)
 	}
-	
+
 	return user, nil
 }
 
@@ -84,19 +84,19 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at, updated_at
 	`
-	
-	err := r.db.QueryRow(query, 
-		user.Nombres, 
-		user.Apellidos, 
-		user.Correo, 
-		user.Usuario, 
+
+	err := r.db.QueryRow(query,
+		user.Nombres,
+		user.Apellidos,
+		user.Correo,
+		user.Usuario,
 		user.Contrasena,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
-	
+
 	if err != nil {
 		return fmt.Errorf("error creating user: %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -107,12 +107,107 @@ func (r *UserRepository) UserExists(username, email string) (bool, error) {
 		FROM users 
 		WHERE usuario = $1 OR correo = $2
 	`
-	
+
 	var count int
 	err := r.db.QueryRow(query, username, email).Scan(&count)
 	if err != nil {
 		return false, fmt.Errorf("error checking user existence: %v", err)
 	}
-	
+
 	return count > 0, nil
+}
+
+// GetUserByID retrieves a user by id
+func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
+	query := `
+        SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+        FROM users 
+        WHERE id = $1
+    `
+
+	user := &models.User{}
+	err := r.db.QueryRow(query, id).Scan(
+		&user.ID,
+		&user.Nombres,
+		&user.Apellidos,
+		&user.Correo,
+		&user.Usuario,
+		&user.Contrasena,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, fmt.Errorf("error querying user: %v", err)
+	}
+	return user, nil
+}
+
+// ListUsers returns all users
+func (r *UserRepository) ListUsers() ([]models.User, error) {
+	query := `
+        SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+        FROM users 
+        ORDER BY id ASC
+    `
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("error listing users: %v", err)
+	}
+	defer rows.Close()
+
+	users := []models.User{}
+	for rows.Next() {
+		var u models.User
+		if err := rows.Scan(&u.ID, &u.Nombres, &u.Apellidos, &u.Correo, &u.Usuario, &u.Contrasena, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("error scanning user: %v", err)
+		}
+		users = append(users, u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating users: %v", err)
+	}
+	return users, nil
+}
+
+// UpdateUser updates user fields by id
+func (r *UserRepository) UpdateUser(user *models.User) error {
+	query := `
+        UPDATE users 
+        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, updated_at=NOW()
+        WHERE id=$6
+        RETURNING updated_at
+    `
+
+	return r.db.QueryRow(query, user.Nombres, user.Apellidos, user.Correo, user.Usuario, user.Contrasena, user.ID).Scan(&user.UpdatedAt)
+}
+
+// DeleteUser deletes a user by id
+func (r *UserRepository) DeleteUser(id int) error {
+	query := `DELETE FROM users WHERE id=$1`
+	res, err := r.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("error deleting user: %v", err)
+	}
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error deleting user: %v", err)
+	}
+	if affected == 0 {
+		return fmt.Errorf("user not found")
+	}
+	return nil
+}
+
+// CountUsers returns the total number of users
+func (r *UserRepository) CountUsers() (int, error) {
+	query := `SELECT COUNT(*) FROM users`
+	var count int
+	if err := r.db.QueryRow(query).Scan(&count); err != nil {
+		return 0, fmt.Errorf("error counting users: %v", err)
+	}
+	return count, nil
 }

@@ -24,6 +24,11 @@ export const routes: Routes = [
         path: 'pomodoro',
         loadComponent: () => import('./pomodoro/pomodoro.component').then(m => m.PomodoroComponent)
       }
+      ,
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./users/users.component').then(m => m.UsersComponent)
+      }
     ]
   }
 ];

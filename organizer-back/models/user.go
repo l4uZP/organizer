@@ -18,20 +18,20 @@ type User struct {
 
 // UserCreateRequest represents the data needed to create a new user
 type UserCreateRequest struct {
-	Nombres   string `json:"nombres" binding:"required"`
-	Apellidos string `json:"apellidos" binding:"required"`
-	Correo    string `json:"correo" binding:"required,email"`
-	Usuario   string `json:"usuario" binding:"required"`
+	Nombres    string `json:"nombres" binding:"required"`
+	Apellidos  string `json:"apellidos" binding:"required"`
+	Correo     string `json:"correo" binding:"required,email"`
+	Usuario    string `json:"usuario" binding:"required"`
 	Contrasena string `json:"contrasena" binding:"required,min=6"`
 }
 
 // UserResponse represents the user data returned in API responses
 type UserResponse struct {
-	ID        int    `json:"id"`
-	Nombres   string `json:"nombres"`
-	Apellidos string `json:"apellidos"`
-	Correo    string `json:"correo"`
-	Usuario   string `json:"usuario"`
+	ID        int       `json:"id"`
+	Nombres   string    `json:"nombres"`
+	Apellidos string    `json:"apellidos"`
+	Correo    string    `json:"correo"`
+	Usuario   string    `json:"usuario"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -47,4 +47,13 @@ func (u *User) ToResponse() UserResponse {
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
+}
+
+// UserUpdateRequest represents the data allowed to update an existing user
+type UserUpdateRequest struct {
+	Nombres    string `json:"nombres" binding:"required"`
+	Apellidos  string `json:"apellidos" binding:"required"`
+	Correo     string `json:"correo" binding:"required,email"`
+	Usuario    string `json:"usuario" binding:"required"`
+	Contrasena string `json:"contrasena"` // Optional; if empty, keep current password
 }

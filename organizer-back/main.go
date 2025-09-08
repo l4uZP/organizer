@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"organizer-back/database"
@@ -31,6 +32,7 @@ func main() {
 
 	// Initialize services
 	authService := services.NewAuthService()
+	usersService := services.NewUsersService()
 
 	r := gin.Default()
 
@@ -48,6 +50,82 @@ func main() {
 		api.POST("/auth/login", handleLogin(authService))
 		api.POST("/auth/register", handleRegister(authService))
 		api.GET("/healthz", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
+
+		// Users CRUD
+		api.GET("/users", func(c *gin.Context) {
+			users, err := usersService.ListUsers()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, users)
+		})
+		api.GET("/users/:id", func(c *gin.Context) {
+			idParam := c.Param("id")
+			var id int
+			_, err := fmt.Sscanf(idParam, "%d", &id)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			user, err := usersService.GetUser(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, user)
+		})
+		api.POST("/users", func(c *gin.Context) {
+			var req models.UserCreateRequest
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			user, err := usersService.CreateUser(&req)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, user)
+		})
+		api.PUT("/users/:id", func(c *gin.Context) {
+			idParam := c.Param("id")
+			var id int
+			_, err := fmt.Sscanf(idParam, "%d", &id)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			var req models.UserUpdateRequest
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			user, err := usersService.UpdateUser(id, &req)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, user)
+		})
+		api.DELETE("/users/:id", func(c *gin.Context) {
+			idParam := c.Param("id")
+			var id int
+			_, err := fmt.Sscanf(idParam, "%d", &id)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			if err := usersService.DeleteUser(id); err != nil {
+				status := http.StatusBadRequest
+				if err.Error() == "cannot delete the last user" {
+					status = http.StatusForbidden
+				}
+				c.JSON(status, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+		})
 	}
 
 	r.Run(":8080")

@@ -1,0 +1,37 @@
+.users-page {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  th, td { border-bottom: 1px solid #eee; padding: 0.5rem; text-align: left; }
+  th { background: #f8f8f8; }
+  .actions button { margin-right: 0.25rem; }
+}
+
+.error { color: #b00020; margin-bottom: 0.5rem; }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+}
+.modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: white; border-radius: 8px; width: 400px; max-width: 90vw;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; border-bottom: 1px solid #eee;
+}
+.modal-body { padding: 1rem; }
+label { display: block; margin-bottom: 0.5rem; }
+input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+.modal-actions { margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+

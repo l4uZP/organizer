@@ -53,7 +53,8 @@ go build -o organizer-back
 ```
 
 ## Notas
-- Aún no se conecta a PostgreSQL. Se añadirá `pgx` y migraciones más adelante.
+- Base de datos: PostgreSQL con `github.com/lib/pq`.
+- Migraciones en `migrations/` (se aplican al iniciar el contenedor de PostgreSQL).
 - Configuración de CORS y rutas en `main.go`.
 
 ## Estructura

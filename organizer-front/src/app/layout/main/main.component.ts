@@ -13,6 +13,7 @@ import { AuthService } from '../../core/auth.service';
 export class MainComponent {
   isSidebarCollapsed = false;
   profileMenuOpen = false;
+  diarioOpen = false;
 
   constructor(private auth: AuthService) {}
 
@@ -22,6 +23,10 @@ export class MainComponent {
 
   toggleProfileMenu(): void {
     this.profileMenuOpen = !this.profileMenuOpen;
+  }
+
+  toggleDiario(): void {
+    this.diarioOpen = !this.diarioOpen;
   }
 
   goToSettings(): void {

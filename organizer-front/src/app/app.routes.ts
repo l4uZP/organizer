@@ -28,6 +28,24 @@ export const routes: Routes = [
       {
         path: 'usuarios',
         loadComponent: () => import('./users/users.component').then(m => m.UsersComponent)
+      },
+      {
+        path: 'diario',
+        children: [
+          { path: '', redirectTo: 'emociones', pathMatch: 'full' },
+          {
+            path: 'emociones',
+            loadComponent: () => import('./diario/emociones/emociones.component').then(m => m.EmocionesComponent)
+          },
+          {
+            path: 'agradecimiento',
+            loadComponent: () => import('./diario/agradecimiento/agradecimiento.component').then(m => m.AgradecimientoComponent)
+          },
+          {
+            path: 'notas',
+            loadComponent: () => import('./diario/notas/notas.component').then(m => m.NotasComponent)
+          }
+        ]
       }
     ]
   }

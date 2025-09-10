@@ -12,6 +12,7 @@ type User struct {
 	Correo     string    `json:"correo" db:"correo"`
 	Usuario    string    `json:"usuario" db:"usuario"`
 	Contrasena string    `json:"-" db:"contrasena"` // Hidden from JSON
+	Role       string    `json:"role" db:"role"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -23,6 +24,7 @@ type UserCreateRequest struct {
 	Correo     string `json:"correo" binding:"required,email"`
 	Usuario    string `json:"usuario" binding:"required"`
 	Contrasena string `json:"contrasena" binding:"required,min=6"`
+	Role       string `json:"role" binding:"omitempty,oneof=admin generic"`
 }
 
 // UserResponse represents the user data returned in API responses
@@ -32,6 +34,7 @@ type UserResponse struct {
 	Apellidos string    `json:"apellidos"`
 	Correo    string    `json:"correo"`
 	Usuario   string    `json:"usuario"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -44,6 +47,7 @@ func (u *User) ToResponse() UserResponse {
 		Apellidos: u.Apellidos,
 		Correo:    u.Correo,
 		Usuario:   u.Usuario,
+		Role:      u.Role,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
@@ -56,4 +60,5 @@ type UserUpdateRequest struct {
 	Correo     string `json:"correo" binding:"required,email"`
 	Usuario    string `json:"usuario" binding:"required"`
 	Contrasena string `json:"contrasena"` // Optional; if empty, keep current password
+	Role       string `json:"role" binding:"omitempty,oneof=admin generic"`
 }

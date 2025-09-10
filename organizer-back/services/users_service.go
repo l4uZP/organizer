@@ -58,6 +58,7 @@ func (s *UsersService) CreateUser(req *models.UserCreateRequest) (*models.UserRe
 		Correo:     req.Correo,
 		Usuario:    req.Usuario,
 		Contrasena: hashed,
+		Role:       defaultRole(req.Role),
 	}
 	if err := s.userRepo.CreateUser(u); err != nil {
 		return nil, err
@@ -77,6 +78,9 @@ func (s *UsersService) UpdateUser(id int, req *models.UserUpdateRequest) (*model
 	current.Apellidos = req.Apellidos
 	current.Correo = req.Correo
 	current.Usuario = req.Usuario
+	if req.Role != "" {
+		current.Role = defaultRole(req.Role)
+	}
 
 	if req.Contrasena != "" {
 		auth := NewAuthService()

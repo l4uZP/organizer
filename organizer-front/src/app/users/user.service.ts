@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../core/auth.service';
 import { Observable } from 'rxjs';
 
 export interface User {
@@ -32,26 +33,31 @@ export interface UpdateUserRequest {
 export class UserService {
   private readonly baseUrl = 'http://localhost:8080/api/v1/users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
+
+  private authHeaders(): HttpHeaders {
+    const token = this.auth.getToken();
+    return new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
+  }
 
   list(): Observable<User[]> {
-    return this.http.get<User[]>(this.baseUrl);
+    return this.http.get<User[]>(this.baseUrl, { headers: this.authHeaders() });
   }
 
   get(id: number): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/${id}`);
+    return this.http.get<User>(`${this.baseUrl}/${id}`, { headers: this.authHeaders() });
   }
 
   create(payload: CreateUserRequest): Observable<User> {
-    return this.http.post<User>(this.baseUrl, payload);
+    return this.http.post<User>(this.baseUrl, payload, { headers: this.authHeaders() });
   }
 
   update(id: number, payload: UpdateUserRequest): Observable<User> {
-    return this.http.put<User>(`${this.baseUrl}/${id}`, payload);
+    return this.http.put<User>(`${this.baseUrl}/${id}`, payload, { headers: this.authHeaders() });
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/${id}`, { headers: this.authHeaders() });
   }
 }
 

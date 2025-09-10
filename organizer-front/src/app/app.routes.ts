@@ -1,7 +1,14 @@
-import { Routes } from '@angular/router';
+import { Routes, CanActivateFn } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { MainComponent } from './layout/main/main.component';
 import { authGuard } from './core/auth.guard';
+import { inject } from '@angular/core';
+import { AuthService } from './core/auth.service';
+
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  return auth.isAdmin();
+};
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -27,7 +34,8 @@ export const routes: Routes = [
       ,
       {
         path: 'usuarios',
-        loadComponent: () => import('./users/users.component').then(m => m.UsersComponent)
+        loadComponent: () => import('./users/users.component').then(m => m.UsersComponent),
+        canActivate: [adminGuard]
       },
       {
         path: 'diario',

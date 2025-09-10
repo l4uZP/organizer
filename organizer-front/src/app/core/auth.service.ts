@@ -2,9 +2,20 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
+interface UserResponse {
+  id: number;
+  nombres: string;
+  apellidos: string;
+  correo: string;
+  usuario: string;
+  role: 'admin' | 'generic';
+  created_at: string;
+  updated_at: string;
+}
+
 interface LoginResponse {
   token: string;
-  user: string;
+  user: UserResponse;
 }
 
 @Injectable({
@@ -39,7 +50,7 @@ export class AuthService {
         const storage = remember ? localStorage : sessionStorage;
         try {
           storage.setItem(AuthService.AUTH_TOKEN_KEY, res.token);
-          storage.setItem(AuthService.AUTH_USER_KEY, res.user);
+          storage.setItem(AuthService.AUTH_USER_KEY, JSON.stringify(res.user));
         } catch {}
         this.isAuthenticatedSubject.next(true);
         return true;
@@ -61,7 +72,44 @@ export class AuthService {
   }
 
   getCurrentUsername(): string | null {
-    const user = localStorage.getItem(AuthService.AUTH_USER_KEY) || sessionStorage.getItem(AuthService.AUTH_USER_KEY);
-    return user || null;
+    const raw = localStorage.getItem(AuthService.AUTH_USER_KEY) || sessionStorage.getItem(AuthService.AUTH_USER_KEY);
+    if (!raw) return null;
+    try {
+      const u: UserResponse = JSON.parse(raw);
+      return u.usuario;
+    } catch {
+      return raw;
+    }
+  }
+
+  getCurrentUser(): UserResponse | null {
+    const raw = localStorage.getItem(AuthService.AUTH_USER_KEY) || sessionStorage.getItem(AuthService.AUTH_USER_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw) as UserResponse; } catch { return null; }
+  }
+
+  isAdmin(): boolean {
+    const u = this.getCurrentUser();
+    if (u && u.role === 'admin') return true;
+    const roleFromToken = this.getRoleFromToken();
+    return roleFromToken === 'admin';
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(AuthService.AUTH_TOKEN_KEY) || sessionStorage.getItem(AuthService.AUTH_TOKEN_KEY);
+  }
+
+  private getRoleFromToken(): 'admin' | 'generic' | null {
+    const token = this.getToken();
+    if (!token) return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+      const payload = JSON.parse(atob(parts[1]));
+      const r = payload?.role;
+      return r === 'admin' ? 'admin' : r === 'generic' ? 'generic' : null;
+    } catch {
+      return null;
+    }
   }
 }

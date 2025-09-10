@@ -20,7 +20,7 @@ func NewUserRepository() *UserRepository {
 // GetUserByUsername retrieves a user by username
 func (r *UserRepository) GetUserByUsername(username string) (*models.User, error) {
 	query := `
-		SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+		SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
 		FROM users 
 		WHERE usuario = $1
 	`
@@ -33,6 +33,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 		&user.Correo,
 		&user.Usuario,
 		&user.Contrasena,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -50,7 +51,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 // GetUserByEmail retrieves a user by email
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	query := `
-		SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+		SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
 		FROM users 
 		WHERE correo = $1
 	`
@@ -63,6 +64,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 		&user.Correo,
 		&user.Usuario,
 		&user.Contrasena,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -80,8 +82,8 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 // CreateUser creates a new user
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query := `
-		INSERT INTO users (nombres, apellidos, correo, usuario, contrasena)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (nombres, apellidos, correo, usuario, contrasena, role)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at, updated_at
 	`
 
@@ -91,6 +93,7 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 		user.Correo,
 		user.Usuario,
 		user.Contrasena,
+		user.Role,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -120,7 +123,7 @@ func (r *UserRepository) UserExists(username, email string) (bool, error) {
 // GetUserByID retrieves a user by id
 func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 	query := `
-        SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+        SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
         FROM users 
         WHERE id = $1
     `
@@ -133,6 +136,7 @@ func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 		&user.Correo,
 		&user.Usuario,
 		&user.Contrasena,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -148,7 +152,7 @@ func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 // ListUsers returns all users
 func (r *UserRepository) ListUsers() ([]models.User, error) {
 	query := `
-        SELECT id, nombres, apellidos, correo, usuario, contrasena, created_at, updated_at 
+        SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
         FROM users 
         ORDER BY id ASC
     `
@@ -162,7 +166,7 @@ func (r *UserRepository) ListUsers() ([]models.User, error) {
 	users := []models.User{}
 	for rows.Next() {
 		var u models.User
-		if err := rows.Scan(&u.ID, &u.Nombres, &u.Apellidos, &u.Correo, &u.Usuario, &u.Contrasena, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		if err := rows.Scan(&u.ID, &u.Nombres, &u.Apellidos, &u.Correo, &u.Usuario, &u.Contrasena, &u.Role, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning user: %v", err)
 		}
 		users = append(users, u)
@@ -177,12 +181,12 @@ func (r *UserRepository) ListUsers() ([]models.User, error) {
 func (r *UserRepository) UpdateUser(user *models.User) error {
 	query := `
         UPDATE users 
-        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, updated_at=NOW()
-        WHERE id=$6
+        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, role=$6, updated_at=NOW()
+        WHERE id=$7
         RETURNING updated_at
     `
 
-	return r.db.QueryRow(query, user.Nombres, user.Apellidos, user.Correo, user.Usuario, user.Contrasena, user.ID).Scan(&user.UpdatedAt)
+	return r.db.QueryRow(query, user.Nombres, user.Apellidos, user.Correo, user.Usuario, user.Contrasena, user.Role, user.ID).Scan(&user.UpdatedAt)
 }
 
 // DeleteUser deletes a user by id

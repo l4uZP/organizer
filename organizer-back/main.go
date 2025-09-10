@@ -7,9 +7,11 @@ import (
 	"organizer-back/database"
 	"organizer-back/models"
 	"organizer-back/services"
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type LoginRequest struct {
@@ -75,7 +77,7 @@ func main() {
 			}
 			c.JSON(http.StatusOK, user)
 		})
-		api.POST("/users", func(c *gin.Context) {
+		api.POST("/users", requireAdmin(), func(c *gin.Context) {
 			var req models.UserCreateRequest
 			if err := c.ShouldBindJSON(&req); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -88,7 +90,7 @@ func main() {
 			}
 			c.JSON(http.StatusCreated, user)
 		})
-		api.PUT("/users/:id", func(c *gin.Context) {
+		api.PUT("/users/:id", requireAdmin(), func(c *gin.Context) {
 			idParam := c.Param("id")
 			var id int
 			_, err := fmt.Sscanf(idParam, "%d", &id)
@@ -108,7 +110,7 @@ func main() {
 			}
 			c.JSON(http.StatusOK, user)
 		})
-		api.DELETE("/users/:id", func(c *gin.Context) {
+		api.DELETE("/users/:id", requireAdmin(), func(c *gin.Context) {
 			idParam := c.Param("id")
 			var id int
 			_, err := fmt.Sscanf(idParam, "%d", &id)
@@ -165,4 +167,39 @@ func handleRegister(authService *services.AuthService) gin.HandlerFunc {
 
 		c.JSON(http.StatusCreated, gin.H{"message": "User created successfully", "user": user})
 	}
+}
+
+// requireAdmin is a middleware that validates the Authorization header for an admin role
+func requireAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role := extractRoleFromAuthHeader(c.GetHeader("Authorization"))
+		if role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "admin role required"})
+			return
+		}
+		c.Next()
+	}
+}
+
+func extractRoleFromAuthHeader(header string) string {
+	if header == "" {
+		return ""
+	}
+	parts := strings.SplitN(header, " ", 2)
+	if len(parts) != 2 {
+		return ""
+	}
+	tokenString := parts[1]
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return ""
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if roleVal, ok2 := claims["role"]; ok2 {
+			if s, ok3 := roleVal.(string); ok3 {
+				return s
+			}
+		}
+	}
+	return ""
 }

@@ -17,10 +17,6 @@
         <span class="icon">⏱️</span>
         <span class="label" *ngIf="!isSidebarCollapsed">Pomodoro</span>
       </a>
-      <a routerLink="/app/usuarios" routerLinkActive="active" class="nav-item">
-        <span class="icon">👥</span>
-        <span class="label" *ngIf="!isSidebarCollapsed">Usuarios</span>
-      </a>
 
       <div class="nav-item has-children" (click)="toggleDiario()">
         <span class="icon">📓</span>
@@ -31,6 +27,15 @@
         <a routerLink="/app/diario/emociones" routerLinkActive="active" class="submenu-item">Emociones</a>
         <a routerLink="/app/diario/agradecimiento" routerLinkActive="active" class="submenu-item">Agradecimiento</a>
         <a routerLink="/app/diario/notas" routerLinkActive="active" class="submenu-item">Notas</a>
+      </div>
+
+      <div class="nav-item has-children" *ngIf="auth.isAdmin()" (click)="toggleAdmin()">
+        <span class="icon">🛠️</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Administración</span>
+        <span class="chevron" *ngIf="!isSidebarCollapsed">{{ adminOpen ? '▾' : '▸' }}</span>
+      </div>
+      <div class="submenu" *ngIf="auth.isAdmin() && adminOpen && !isSidebarCollapsed">
+        <a routerLink="/app/usuarios" routerLinkActive="active" class="submenu-item">Usuarios</a>
       </div>
     </nav>
   </aside>

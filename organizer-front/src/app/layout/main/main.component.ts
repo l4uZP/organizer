@@ -14,8 +14,9 @@ export class MainComponent {
   isSidebarCollapsed = false;
   profileMenuOpen = false;
   diarioOpen = false;
+  adminOpen = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(public auth: AuthService) {}
 
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
@@ -27,6 +28,10 @@ export class MainComponent {
 
   toggleDiario(): void {
     this.diarioOpen = !this.diarioOpen;
+  }
+
+  toggleAdmin(): void {
+    this.adminOpen = !this.adminOpen;
   }
 
   goToSettings(): void {

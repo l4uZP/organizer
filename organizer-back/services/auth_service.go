@@ -11,7 +11,7 @@ import (
 )
 
 type AuthService struct {
-	userRepo *repository.UserRepository
+	userRepo  *repository.UserRepository
 	jwtSecret string
 }
 
@@ -36,7 +36,7 @@ func (s *AuthService) Login(username, password string) (*models.UserResponse, st
 	}
 
 	// Generate JWT token
-	token, err := s.generateToken(user.ID, user.Usuario)
+	token, err := s.generateToken(user.ID, user.Usuario, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -70,6 +70,7 @@ func (s *AuthService) Register(userReq *models.UserCreateRequest) (*models.UserR
 		Correo:     userReq.Correo,
 		Usuario:    userReq.Usuario,
 		Contrasena: hashedPassword,
+		Role:       defaultRole(userReq.Role),
 	}
 
 	err = s.userRepo.CreateUser(user)
@@ -95,13 +96,21 @@ func (s *AuthService) checkPassword(password, hash string) bool {
 }
 
 // generateToken creates a JWT token for the user
-func (s *AuthService) generateToken(userID int, username string) (string, error) {
+func (s *AuthService) generateToken(userID int, username string, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":  userID,
 		"username": username,
+		"role":     role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(), // 24 hours
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(s.jwtSecret))
+}
+
+func defaultRole(in string) string {
+	if in == "admin" {
+		return "admin"
+	}
+	return "generic"
 }

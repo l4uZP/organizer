@@ -15,6 +15,7 @@
         <th>Apellidos</th>
         <th>Correo</th>
         <th>Usuario</th>
+        <th>Rol</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -25,6 +26,7 @@
         <td>{{ u.apellidos }}</td>
         <td>{{ u.correo }}</td>
         <td>{{ u.usuario }}</td>
+        <td>{{ u.role }}</td>
         <td class="actions">
           <button title="Editar" (click)="openEdit(u)">✏️</button>
           <button title="Eliminar" [disabled]="!canDelete()" (click)="remove(u)">🗑️</button>
@@ -62,6 +64,13 @@
         <label>
           Contraseña
           <input name="contrasena" type="password" [(ngModel)]="form.contrasena" [required]="formMode==='create'" minlength="6" />
+        </label>
+        <label>
+          Rol
+          <select name="role" [(ngModel)]="form.role" required>
+            <option value="admin">admin</option>
+            <option value="generic">generic</option>
+          </select>
         </label>
         <div class="modal-actions">
           <button type="submit" [disabled]="f.invalid">Guardar</button>

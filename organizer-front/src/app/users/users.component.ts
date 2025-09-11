@@ -26,7 +26,8 @@ export class UsersComponent implements OnInit {
     apellidos: '',
     correo: '',
     usuario: '',
-    contrasena: ''
+    contrasena: '',
+    role: 'generic' as 'admin' | 'generic'
   };
 
   constructor(private userService: UserService) {}
@@ -47,7 +48,7 @@ export class UsersComponent implements OnInit {
   openCreate(): void {
     this.formMode = 'create';
     this.editingId = null;
-    this.form = { nombres: '', apellidos: '', correo: '', usuario: '', contrasena: '' };
+    this.form = { nombres: '', apellidos: '', correo: '', usuario: '', contrasena: '', role: 'generic' };
     this.formError = null;
     this.showForm = true;
   }
@@ -55,7 +56,7 @@ export class UsersComponent implements OnInit {
   openEdit(u: User): void {
     this.formMode = 'edit';
     this.editingId = u.id;
-    this.form = { nombres: u.nombres, apellidos: u.apellidos, correo: u.correo, usuario: u.usuario, contrasena: '' };
+    this.form = { nombres: u.nombres, apellidos: u.apellidos, correo: u.correo, usuario: u.usuario, contrasena: '', role: u.role };
     this.formError = null;
     this.showForm = true;
   }

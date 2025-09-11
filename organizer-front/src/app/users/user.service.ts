@@ -9,6 +9,7 @@ export interface User {
   apellidos: string;
   correo: string;
   usuario: string;
+  role: 'admin' | 'generic';
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +20,7 @@ export interface CreateUserRequest {
   correo: string;
   usuario: string;
   contrasena: string;
+  role: 'admin' | 'generic';
 }
 
 export interface UpdateUserRequest {
@@ -27,6 +29,7 @@ export interface UpdateUserRequest {
   correo: string;
   usuario: string;
   contrasena?: string;
+  role?: 'admin' | 'generic';
 }
 
 @Injectable({ providedIn: 'root' })

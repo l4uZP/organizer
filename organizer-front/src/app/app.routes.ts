@@ -46,10 +46,6 @@ export const routes: Routes = [
             loadComponent: () => import('./diario/emociones/emociones.component').then(m => m.EmocionesComponent)
           },
           {
-            path: 'agradecimiento',
-            loadComponent: () => import('./diario/agradecimiento/agradecimiento.component').then(m => m.AgradecimientoComponent)
-          },
-          {
             path: 'notas',
             loadComponent: () => import('./diario/notas/notas.component').then(m => m.NotasComponent)
           }

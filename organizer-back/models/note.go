@@ -8,6 +8,8 @@ type Note struct {
 	UserID    int       `json:"user_id" db:"user_id"`
 	NoteDate  time.Time `json:"-" db:"note_date"`
 	Content   string    `json:"content" db:"content"`
+	Hidden    bool      `json:"hidden" db:"hidden"`
+	Starred   bool      `json:"starred" db:"starred"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -18,6 +20,8 @@ type NoteResponse struct {
 	UserID    int       `json:"user_id"`
 	NoteDate  string    `json:"note_date"`
 	Content   string    `json:"content"`
+	Hidden    bool      `json:"hidden"`
+	Starred   bool      `json:"starred"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -29,6 +33,8 @@ func (n *Note) ToResponse() NoteResponse {
 		UserID:    n.UserID,
 		NoteDate:  n.NoteDate.Format("2006-01-02"),
 		Content:   n.Content,
+		Hidden:    n.Hidden,
+		Starred:   n.Starred,
 		CreatedAt: n.CreatedAt,
 		UpdatedAt: n.UpdatedAt,
 	}
@@ -44,4 +50,6 @@ type NoteCreateRequest struct {
 type NoteUpdateRequest struct {
 	NoteDate *string `json:"note_date,omitempty"`
 	Content  *string `json:"content,omitempty"`
+	Hidden   *bool   `json:"hidden,omitempty"`
+	Starred  *bool   `json:"starred,omitempty"`
 }

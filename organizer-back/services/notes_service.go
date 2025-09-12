@@ -14,12 +14,12 @@ func NewNotesService() *NotesService {
 	return &NotesService{repo: repository.NewNoteRepository()}
 }
 
-func (s *NotesService) ListByUserAndDate(userID int, date string) ([]models.NoteResponse, error) {
+func (s *NotesService) ListByUserAndDate(userID int, date string, includeHidden bool) ([]models.NoteResponse, error) {
 	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return nil, err
 	}
-	notes, err := s.repo.ListByUserAndDate(userID, d)
+	notes, err := s.repo.ListByUserAndDate(userID, d, includeHidden)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (s *NotesService) Update(userID, id int, req *models.NoteUpdateRequest) (*m
 		}
 		dptr = &d
 	}
-	n, err := s.repo.Update(userID, id, dptr, req.Content)
+	n, err := s.repo.Update(userID, id, dptr, req.Content, req.Hidden, req.Starred)
 	if err != nil {
 		return nil, err
 	}

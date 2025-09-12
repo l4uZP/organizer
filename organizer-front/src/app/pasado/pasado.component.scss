@@ -1,0 +1,12 @@
+.pasado-page { padding: 12px; }
+.date { opacity: 0.8; margin-bottom: 12px; }
+.cards { display: flex; gap: 16px; }
+.card {
+  display: grid; place-items: center;
+  width: 160px; height: 120px;
+  background: #1f1f1f; border: 1px solid #2a2a2a; border-radius: 10px;
+  font-size: 18px; color: inherit;
+}
+.card:hover { background: #232323; }
+
+

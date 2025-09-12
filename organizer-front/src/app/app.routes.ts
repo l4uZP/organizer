@@ -4,6 +4,9 @@ import { MainComponent } from './layout/main/main.component';
 import { authGuard } from './core/auth.guard';
 import { inject } from '@angular/core';
 import { AuthService } from './core/auth.service';
+import { PasadoComponent } from './pasado/pasado.component';
+import { PasadoNotasComponent } from './pasado/pasado-notas.component';
+import { PomodorosComponent } from './pasado/pomodoros.component';
 
 export const adminGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
@@ -49,6 +52,14 @@ export const routes: Routes = [
             path: 'notas',
             loadComponent: () => import('./diario/notas/notas.component').then(m => m.NotasComponent)
           }
+        ]
+      },
+      {
+        path: 'pasado',
+        children: [
+          { path: '', component: PasadoComponent },
+          { path: 'notas', component: PasadoNotasComponent },
+          { path: 'pomodoros', component: PomodorosComponent }
         ]
       }
     ]

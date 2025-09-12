@@ -16,9 +16,13 @@ func NewNoteRepository() *NoteRepository {
 	return &NoteRepository{db: database.DB}
 }
 
-func (r *NoteRepository) ListByUserAndDate(userID int, date time.Time) ([]models.Note, error) {
-	query := `SELECT id, user_id, note_date, content, created_at, updated_at FROM notes WHERE user_id=$1 AND note_date=$2 ORDER BY id ASC`
-	rows, err := r.db.Query(query, userID, date.Format("2006-01-02"))
+func (r *NoteRepository) ListByUserAndDate(userID int, date time.Time, includeHidden bool) ([]models.Note, error) {
+	q := `SELECT id, user_id, note_date, content, hidden, starred, created_at, updated_at FROM notes WHERE user_id=$1 AND note_date=$2`
+	if !includeHidden {
+		q += ` AND hidden = FALSE`
+	}
+	q += ` ORDER BY hidden ASC, starred DESC, created_at ASC`
+	rows, err := r.db.Query(q, userID, date.Format("2006-01-02"))
 	if err != nil {
 		return nil, fmt.Errorf("error listing notes: %v", err)
 	}
@@ -27,7 +31,7 @@ func (r *NoteRepository) ListByUserAndDate(userID int, date time.Time) ([]models
 	var notes []models.Note
 	for rows.Next() {
 		var n models.Note
-		if err := rows.Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.CreatedAt, &n.UpdatedAt); err != nil {
+		if err := rows.Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.Hidden, &n.Starred, &n.CreatedAt, &n.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning note: %v", err)
 		}
 		notes = append(notes, n)
@@ -39,18 +43,18 @@ func (r *NoteRepository) ListByUserAndDate(userID int, date time.Time) ([]models
 }
 
 func (r *NoteRepository) Create(userID int, date time.Time, content string) (*models.Note, error) {
-	query := `INSERT INTO notes (user_id, note_date, content) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
+	query := `INSERT INTO notes (user_id, note_date, content) VALUES ($1, $2, $3) RETURNING id, hidden, starred, created_at, updated_at`
 	n := &models.Note{UserID: userID, NoteDate: date, Content: content}
-	if err := r.db.QueryRow(query, userID, date.Format("2006-01-02"), content).Scan(&n.ID, &n.CreatedAt, &n.UpdatedAt); err != nil {
+	if err := r.db.QueryRow(query, userID, date.Format("2006-01-02"), content).Scan(&n.ID, &n.Hidden, &n.Starred, &n.CreatedAt, &n.UpdatedAt); err != nil {
 		return nil, fmt.Errorf("error creating note: %v", err)
 	}
 	return n, nil
 }
 
 func (r *NoteRepository) GetByID(userID, id int) (*models.Note, error) {
-	query := `SELECT id, user_id, note_date, content, created_at, updated_at FROM notes WHERE id=$1 AND user_id=$2`
+	query := `SELECT id, user_id, note_date, content, hidden, starred, created_at, updated_at FROM notes WHERE id=$1 AND user_id=$2`
 	var n models.Note
-	if err := r.db.QueryRow(query, id, userID).Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.CreatedAt, &n.UpdatedAt); err != nil {
+	if err := r.db.QueryRow(query, id, userID).Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.Hidden, &n.Starred, &n.CreatedAt, &n.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("note not found")
 		}
@@ -59,7 +63,7 @@ func (r *NoteRepository) GetByID(userID, id int) (*models.Note, error) {
 	return &n, nil
 }
 
-func (r *NoteRepository) Update(userID, id int, date *time.Time, content *string) (*models.Note, error) {
+func (r *NoteRepository) Update(userID, id int, date *time.Time, content *string, hidden *bool, starred *bool) (*models.Note, error) {
 	// Build dynamic update
 	setClause := ""
 	args := []interface{}{}
@@ -74,6 +78,16 @@ func (r *NoteRepository) Update(userID, id int, date *time.Time, content *string
 		args = append(args, *content)
 		idx++
 	}
+	if hidden != nil {
+		setClause += fmt.Sprintf("hidden=$%d, ", idx)
+		args = append(args, *hidden)
+		idx++
+	}
+	if starred != nil {
+		setClause += fmt.Sprintf("starred=$%d, ", idx)
+		args = append(args, *starred)
+		idx++
+	}
 	if setClause == "" {
 		// nothing to update
 		return r.GetByID(userID, id)
@@ -81,10 +95,10 @@ func (r *NoteRepository) Update(userID, id int, date *time.Time, content *string
 	// trim trailing comma and space
 	setClause = setClause[:len(setClause)-2]
 	args = append(args, id, userID)
-	query := fmt.Sprintf("UPDATE notes SET %s, updated_at=NOW() WHERE id=$%d AND user_id=$%d RETURNING id, user_id, note_date, content, created_at, updated_at", setClause, idx, idx+1)
+	query := fmt.Sprintf("UPDATE notes SET %s, updated_at=NOW() WHERE id=$%d AND user_id=$%d RETURNING id, user_id, note_date, content, hidden, starred, created_at, updated_at", setClause, idx, idx+1)
 
 	var n models.Note
-	if err := r.db.QueryRow(query, args...).Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.CreatedAt, &n.UpdatedAt); err != nil {
+	if err := r.db.QueryRow(query, args...).Scan(&n.ID, &n.UserID, &n.NoteDate, &n.Content, &n.Hidden, &n.Starred, &n.CreatedAt, &n.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("note not found")
 		}

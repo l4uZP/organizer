@@ -8,6 +8,8 @@ export interface Note {
   user_id: number;
   note_date: string; // YYYY-MM-DD
   content: string;
+  hidden: boolean;
+  starred: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +22,8 @@ export interface CreateNoteRequest {
 export interface UpdateNoteRequest {
   note_date?: string;
   content?: string;
+  hidden?: boolean;
+  starred?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,8 +37,9 @@ export class NotesService {
     return new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
   }
 
-  listByDate(date: string): Observable<Note[]> {
-    return this.http.get<Note[]>(`${this.baseUrl}?date=${encodeURIComponent(date)}`, { headers: this.authHeaders() });
+  listByDate(date: string, includeHidden = false): Observable<Note[]> {
+    const params = `date=${encodeURIComponent(date)}&include_hidden=${includeHidden ? 'true' : 'false'}`;
+    return this.http.get<Note[]>(`${this.baseUrl}?${params}`, { headers: this.authHeaders() });
   }
 
   create(payload: CreateNoteRequest): Observable<Note> {
@@ -51,6 +56,14 @@ export class NotesService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`, { headers: this.authHeaders() });
+  }
+
+  setHidden(id: number, hidden: boolean): Observable<Note> {
+    return this.update(id, { hidden });
+  }
+
+  setStarred(id: number, starred: boolean): Observable<Note> {
+    return this.update(id, { starred });
   }
 }
 

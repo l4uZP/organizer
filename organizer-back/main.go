@@ -144,7 +144,8 @@ func main() {
 				// default to today in YYYY-MM-DD
 				date = timeNow().Format("2006-01-02")
 			}
-			notes, err := notesService.ListByUserAndDate(userID, date)
+			includeHidden := c.Query("include_hidden") == "true"
+			notes, err := notesService.ListByUserAndDate(userID, date, includeHidden)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return

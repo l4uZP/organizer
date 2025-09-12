@@ -46,8 +46,7 @@
         <details class="cell" *ngIf="day" [class.today]="isToday(day)">
           <summary><span class="num">{{ day!.getDate() }}</span></summary>
           <nav class="menu">
-            <a [routerLink]="['/app/recordatorios']" [queryParams]="{ date: iso(day!) }">Recordatorios</a>
-            <a [routerLink]="['/app/notas']" [queryParams]="{ date: iso(day!) }">Notas</a>
+            <a [routerLink]="['/app/pasado']" [queryParams]="{ date: iso(day!) }">Pasado</a>
           </nav>
         </details>
       }

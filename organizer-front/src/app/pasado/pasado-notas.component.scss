@@ -1,0 +1,13 @@
+.pasado-notas-page { padding: 12px; }
+.toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.notes-list { display: grid; gap: 8px; }
+.note { border: 1px solid #2a2a2a; background: #1f1f1f; border-radius: 8px; padding: 8px; }
+.note.hidden { opacity: 0.5; }
+.row { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; }
+.star { cursor: pointer; font-size: 18px; }
+.content { white-space: pre-wrap; }
+.hide { background: #2a2a2a; }
+.note.starred { border-color: #caa300; }
+.empty { opacity: 0.7; font-style: italic; }
+
+

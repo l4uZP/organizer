@@ -7,7 +7,9 @@ import (
 	"organizer-back/database"
 	"organizer-back/models"
 	"organizer-back/services"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -35,6 +37,7 @@ func main() {
 	// Initialize services
 	authService := services.NewAuthService()
 	usersService := services.NewUsersService()
+	notesService := services.NewNotesService()
 
 	r := gin.Default()
 
@@ -128,6 +131,109 @@ func main() {
 			}
 			c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 		})
+
+		// Notes endpoints (require authentication)
+		api.GET("/notes", func(c *gin.Context) {
+			userID := extractUserIDFromAuthHeader(c.GetHeader("Authorization"))
+			if userID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+				return
+			}
+			date := c.Query("date")
+			if date == "" {
+				// default to today in YYYY-MM-DD
+				date = timeNow().Format("2006-01-02")
+			}
+			notes, err := notesService.ListByUserAndDate(userID, date)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, notes)
+		})
+
+		api.POST("/notes", func(c *gin.Context) {
+			userID := extractUserIDFromAuthHeader(c.GetHeader("Authorization"))
+			if userID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+				return
+			}
+			var req models.NoteCreateRequest
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+				return
+			}
+			note, err := notesService.Create(userID, &req)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, note)
+		})
+
+		api.GET("/notes/:id", func(c *gin.Context) {
+			userID := extractUserIDFromAuthHeader(c.GetHeader("Authorization"))
+			if userID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+				return
+			}
+			idParam := c.Param("id")
+			id, err := strconv.Atoi(idParam)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			note, err := notesService.Get(userID, id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, note)
+		})
+
+		api.PUT("/notes/:id", func(c *gin.Context) {
+			userID := extractUserIDFromAuthHeader(c.GetHeader("Authorization"))
+			if userID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+				return
+			}
+			idParam := c.Param("id")
+			id, err := strconv.Atoi(idParam)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			var req models.NoteUpdateRequest
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+				return
+			}
+			note, err := notesService.Update(userID, id, &req)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, note)
+		})
+
+		api.DELETE("/notes/:id", func(c *gin.Context) {
+			userID := extractUserIDFromAuthHeader(c.GetHeader("Authorization"))
+			if userID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+				return
+			}
+			idParam := c.Param("id")
+			id, err := strconv.Atoi(idParam)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+				return
+			}
+			if err := notesService.Delete(userID, id); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+		})
 	}
 
 	r.Run(":8080")
@@ -203,3 +309,33 @@ func extractRoleFromAuthHeader(header string) string {
 	}
 	return ""
 }
+
+// extractUserIDFromAuthHeader reads the Bearer token without verifying signature and extracts user_id claim
+func extractUserIDFromAuthHeader(header string) int {
+	if header == "" {
+		return 0
+	}
+	parts := strings.SplitN(header, " ", 2)
+	if len(parts) != 2 {
+		return 0
+	}
+	tokenString := parts[1]
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return 0
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if v, ok2 := claims["user_id"]; ok2 {
+			switch t := v.(type) {
+			case float64:
+				return int(t)
+			case int:
+				return t
+			}
+		}
+	}
+	return 0
+}
+
+// timeNow is a seam for testing
+var timeNow = func() time.Time { return time.Now() }

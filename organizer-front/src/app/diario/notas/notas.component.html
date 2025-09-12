@@ -1,6 +1,55 @@
 <div class="diario-page">
-  <h2>Notas</h2>
-  <p>Escribe notas libres de tu día.</p>
+  <div class="header">
+    <h2>Notas del día</h2>
+    <div class="date">{{ todayStr }}</div>
+  </div>
+
+  <div class="layout">
+    <div class="composer">
+      <form [formGroup]="form" (ngSubmit)="addNote()">
+        <textarea formControlName="content" rows="6" placeholder="Escribe tu nota..."></textarea>
+        <div class="actions">
+          <button type="submit" [disabled]="form.invalid">Agregar nota</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="list">
+      <div class="list-title">Notas de hoy</div>
+      <ng-container *ngIf="notes.length; else emptyState">
+        <button class="note-item" *ngFor="let n of notes" (click)="select(n)">
+          {{ n.content.length > 100 ? (n.content | slice:0:100) + '...' : n.content }}
+        </button>
+      </ng-container>
+      <ng-template #emptyState>
+        <div class="empty">Todavía no hay notas por hoy.</div>
+      </ng-template>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" *ngIf="modalOpen" (click)="closeModal()"></div>
+    <div class="modal" *ngIf="modalOpen && selected as s">
+      <div class="modal-header">
+        <div class="title">Nota del {{ s.note_date }}</div>
+        <button class="close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="!editing" class="content-view">
+          <pre>{{ s.content }}</pre>
+        </div>
+        <div *ngIf="editing" class="content-edit">
+          <textarea rows="10" [(ngModel)]="editingContent"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="spacer"></div>
+        <button class="danger" (click)="deleteSelected()">Borrar</button>
+        <button *ngIf="!editing" (click)="startEdit()">Editar</button>
+        <button *ngIf="editing" (click)="saveEdit()">Guardar</button>
+        <button *ngIf="editing" type="button" (click)="editing=false">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 

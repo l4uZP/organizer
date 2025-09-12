@@ -20,9 +20,10 @@ func NewUserRepository() *UserRepository {
 // GetUserByUsername retrieves a user by username
 func (r *UserRepository) GetUserByUsername(username string) (*models.User, error) {
 	query := `
-		SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
-		FROM users 
-		WHERE usuario = $1
+		SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+		FROM users u
+		JOIN roles r ON r.id = u.role_id
+		WHERE u.usuario = $1
 	`
 
 	user := &models.User{}
@@ -51,9 +52,10 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 // GetUserByEmail retrieves a user by email
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	query := `
-		SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
-		FROM users 
-		WHERE correo = $1
+		SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+		FROM users u
+		JOIN roles r ON r.id = u.role_id
+		WHERE u.correo = $1
 	`
 
 	user := &models.User{}
@@ -82,8 +84,8 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 // CreateUser creates a new user
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query := `
-		INSERT INTO users (nombres, apellidos, correo, usuario, contrasena, role)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO users (nombres, apellidos, correo, usuario, contrasena, role_id)
+		VALUES ($1, $2, $3, $4, $5, (SELECT id FROM roles WHERE name = $6))
 		RETURNING id, created_at, updated_at
 	`
 
@@ -123,9 +125,10 @@ func (r *UserRepository) UserExists(username, email string) (bool, error) {
 // GetUserByID retrieves a user by id
 func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 	query := `
-        SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
-        FROM users 
-        WHERE id = $1
+        SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+        FROM users u
+        JOIN roles r ON r.id = u.role_id
+        WHERE u.id = $1
     `
 
 	user := &models.User{}
@@ -152,9 +155,10 @@ func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 // ListUsers returns all users
 func (r *UserRepository) ListUsers() ([]models.User, error) {
 	query := `
-        SELECT id, nombres, apellidos, correo, usuario, contrasena, role, created_at, updated_at 
-        FROM users 
-        ORDER BY id ASC
+        SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+        FROM users u
+        JOIN roles r ON r.id = u.role_id
+        ORDER BY u.id ASC
     `
 
 	rows, err := r.db.Query(query)
@@ -181,7 +185,7 @@ func (r *UserRepository) ListUsers() ([]models.User, error) {
 func (r *UserRepository) UpdateUser(user *models.User) error {
 	query := `
         UPDATE users 
-        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, role=$6, updated_at=NOW()
+        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, role_id=(SELECT id FROM roles WHERE name=$6), updated_at=NOW()
         WHERE id=$7
         RETURNING updated_at
     `

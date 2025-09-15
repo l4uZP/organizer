@@ -2,16 +2,16 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { NotesService, Note } from '../diario/notas/notes.service';
+import { NotesService, Note } from '../journal/notes/notes.service';
 
 @Component({
-  selector: 'app-pasado-notas',
+  selector: 'app-history-notes',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './pasado-notas.component.html',
-  styleUrls: ['./pasado-notas.component.scss']
+  templateUrl: './history-notes.component.html',
+  styleUrls: ['./history-notes.component.scss']
 })
-export class PasadoNotasComponent {
+export class HistoryNotesComponent {
   date = '';
   includeHidden = false;
   notes: Note[] = [];
@@ -24,11 +24,11 @@ export class PasadoNotasComponent {
   }
 
   load(): void {
-    this.notesSvc.listByDate(this.date, this.includeHidden).subscribe(n => this.notes = n);
+    this.notesSvc.listByDate(this.date, this.includeHidden).subscribe((n) => this.notes = n);
   }
 
   toggleHidden(note: Note): void {
-    this.notesSvc.setHidden(note.id, !note.hidden).subscribe(updated => {
+    this.notesSvc.setHidden(note.id, !note.hidden).subscribe((updated) => {
       const idx = this.notes.findIndex(x => x.id === note.id);
       if (idx >= 0) this.notes[idx] = updated;
       this.resort();
@@ -36,7 +36,7 @@ export class PasadoNotasComponent {
   }
 
   toggleStarred(note: Note): void {
-    this.notesSvc.setStarred(note.id, !note.starred).subscribe(updated => {
+    this.notesSvc.setStarred(note.id, !note.starred).subscribe((updated) => {
       const idx = this.notes.findIndex(x => x.id === note.id);
       if (idx >= 0) this.notes[idx] = updated;
       this.resort();

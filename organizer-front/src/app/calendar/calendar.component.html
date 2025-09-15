@@ -1,20 +1,20 @@
 <section class="cal">
   <header class="cal-head">
-    <button class="nav" (click)="prevMonth()" aria-label="Mes anterior">◀</button>
+    <button class="nav" (click)="prevMonth()" aria-label="Previous month">◀</button>
     <h2 class="title">
       <button class="link" (click)="toggleMonthPicker()" [attr.aria-expanded]="monthPickerOpen">{{ monthName }}</button>
       <span> </span>
       <button class="link" (click)="toggleYearPicker()" [attr.aria-expanded]="yearPickerOpen">{{ viewYear }}</button>
     </h2>
     <div class="actions">
-      <button class="nav" (click)="goToToday()" [disabled]="isOnCurrentMonth" title="Volver a hoy">Hoy</button>
-      <button class="nav" (click)="nextMonth()" aria-label="Mes siguiente">▶</button>
+      <button class="nav" (click)="goToToday()" [disabled]="isOnCurrentMonth" title="Go to today">Today</button>
+      <button class="nav" (click)="nextMonth()" aria-label="Next month">▶</button>
     </div>
   </header>
 
   <div class="pickers">
     <div class="picker" *ngIf="monthPickerOpen">
-      <label>Mes</label>
+      <label>Month</label>
       <select [(ngModel)]="viewMonth" (ngModelChange)="onMonthSelectIndex($event)">
         @for (m of monthOptions; track m; let i = $index) {
           <option [value]="i">{{ m }}</option>
@@ -23,22 +23,22 @@
     </div>
 
     <div class="picker" *ngIf="yearPickerOpen">
-      <label>Año</label>
+      <label>Year</label>
       <div class="year-row">
         <input type="number" [(ngModel)]="yearInputValue" (keyup.enter)="applyYear()">
-        <button class="nav" (click)="applyYear()">Aplicar</button>
+        <button class="nav" (click)="applyYear()">Apply</button>
       </div>
     </div>
   </div>
 
   <div class="cal-grid">
-    <div class="dow">L</div>
     <div class="dow">M</div>
-    <div class="dow">X</div>
-    <div class="dow">J</div>
-    <div class="dow">V</div>
+    <div class="dow">T</div>
+    <div class="dow">W</div>
+    <div class="dow">T</div>
+    <div class="dow">F</div>
     <div class="dow">S</div>
-    <div class="dow">D</div>
+    <div class="dow">S</div>
 
     @for (week of weeks; track week) {
       @for (day of week; track day) {
@@ -46,7 +46,7 @@
         <details class="cell" *ngIf="day" [class.today]="isToday(day)">
           <summary><span class="num">{{ day!.getDate() }}</span></summary>
           <nav class="menu">
-            <a [routerLink]="['/app/pasado']" [queryParams]="{ date: iso(day!) }">Pasado</a>
+            <a [routerLink]="['/app/history']" [queryParams]="{ date: iso(day!) }">History</a>
           </nav>
         </details>
       }

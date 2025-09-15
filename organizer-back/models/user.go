@@ -6,34 +6,34 @@ import (
 
 // User represents a user in the system
 type User struct {
-	ID         int       `json:"id" db:"id"`
-	Nombres    string    `json:"nombres" db:"nombres"`
-	Apellidos  string    `json:"apellidos" db:"apellidos"`
-	Correo     string    `json:"correo" db:"correo"`
-	Usuario    string    `json:"usuario" db:"usuario"`
-	Contrasena string    `json:"-" db:"contrasena"` // Hidden from JSON
-	Role       string    `json:"role" db:"role"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+	ID           int       `json:"id" db:"id"`
+	FirstName    string    `json:"first_name" db:"first_name"`
+	LastName     string    `json:"last_name" db:"last_name"`
+	Email        string    `json:"email" db:"email"`
+	Username     string    `json:"username" db:"username"`
+	PasswordHash string    `json:"-" db:"password_hash"`
+	Role         string    `json:"role" db:"role"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // UserCreateRequest represents the data needed to create a new user
 type UserCreateRequest struct {
-	Nombres    string `json:"nombres" binding:"required"`
-	Apellidos  string `json:"apellidos" binding:"required"`
-	Correo     string `json:"correo" binding:"required,email"`
-	Usuario    string `json:"usuario" binding:"required"`
-	Contrasena string `json:"contrasena" binding:"required,min=6"`
-	Role       string `json:"role" binding:"omitempty,oneof=admin generic"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Username  string `json:"username" binding:"required"`
+	Password  string `json:"password" binding:"required,min=6"`
+	Role      string `json:"role" binding:"omitempty,oneof=admin generic"`
 }
 
 // UserResponse represents the user data returned in API responses
 type UserResponse struct {
 	ID        int       `json:"id"`
-	Nombres   string    `json:"nombres"`
-	Apellidos string    `json:"apellidos"`
-	Correo    string    `json:"correo"`
-	Usuario   string    `json:"usuario"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
 	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -43,10 +43,10 @@ type UserResponse struct {
 func (u *User) ToResponse() UserResponse {
 	return UserResponse{
 		ID:        u.ID,
-		Nombres:   u.Nombres,
-		Apellidos: u.Apellidos,
-		Correo:    u.Correo,
-		Usuario:   u.Usuario,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Username:  u.Username,
 		Role:      u.Role,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
@@ -55,10 +55,10 @@ func (u *User) ToResponse() UserResponse {
 
 // UserUpdateRequest represents the data allowed to update an existing user
 type UserUpdateRequest struct {
-	Nombres    string `json:"nombres" binding:"required"`
-	Apellidos  string `json:"apellidos" binding:"required"`
-	Correo     string `json:"correo" binding:"required,email"`
-	Usuario    string `json:"usuario" binding:"required"`
-	Contrasena string `json:"contrasena"` // Optional; if empty, keep current password
-	Role       string `json:"role" binding:"omitempty,oneof=admin generic"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Username  string `json:"username" binding:"required"`
+	Password  string `json:"password"`
+	Role      string `json:"role" binding:"omitempty,oneof=admin generic"`
 }

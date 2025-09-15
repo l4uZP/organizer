@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-calendario',
+  selector: 'app-calendar',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './calendario.component.html',
-  styleUrl: './calendario.component.scss'
+  templateUrl: './calendar.component.html',
+  styleUrl: './calendar.component.scss'
 })
-export class CalendarioComponent implements OnInit {
+export class CalendarComponent implements OnInit {
   today = new Date();
   viewYear = this.today.getFullYear();
   viewMonth = this.today.getMonth(); // 0-11
@@ -27,15 +27,14 @@ export class CalendarioComponent implements OnInit {
 
   get monthLabel(): string {
     const d = new Date(this.viewYear, this.viewMonth, 1);
-    // Mes en español, capitalizado
-    const formatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+    const formatter = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
     const label = formatter.format(d);
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   get monthName(): string {
     const d = new Date(this.viewYear, this.viewMonth, 1);
-    const formatter = new Intl.DateTimeFormat('es-ES', { month: 'long' });
+    const formatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
     const label = formatter.format(d);
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
@@ -50,7 +49,7 @@ export class CalendarioComponent implements OnInit {
   private buildMonthOptions(): void {
     this.monthOptions = [];
     for (let i = 0; i < 12; i++) {
-      const label = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2000, i, 1));
+      const label = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(2000, i, 1));
       this.monthOptions.push(label.charAt(0).toUpperCase() + label.slice(1));
     }
   }
@@ -58,7 +57,7 @@ export class CalendarioComponent implements OnInit {
   buildCalendar(): void {
     const firstDay = new Date(this.viewYear, this.viewMonth, 1);
     const lastDay = new Date(this.viewYear, this.viewMonth + 1, 0);
-    const startIdxMondayBased = (firstDay.getDay() + 6) % 7; // Lunes=0
+    const startIdxMondayBased = (firstDay.getDay() + 6) % 7; // Monday=0
     const numDays = lastDay.getDate();
 
     const cells: (Date | null)[] = [];
@@ -89,7 +88,6 @@ export class CalendarioComponent implements OnInit {
   }
 
   iso(date: Date): string {
-    // YYYY-MM-DD
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');

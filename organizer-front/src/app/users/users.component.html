@@ -1,35 +1,35 @@
 <div class="users-page">
   <div class="header">
-    <h2>Usuarios</h2>
-    <button (click)="openCreate()">Agregar usuario</button>
+    <h2>Users</h2>
+    <button (click)="openCreate()">Add user</button>
   </div>
 
   <div *ngIf="error" class="error">{{ error }}</div>
-  <div *ngIf="loading">Cargando...</div>
+  <div *ngIf="loading">Loading...</div>
 
   <table *ngIf="!loading" class="users-table">
     <thead>
       <tr>
         <th>ID</th>
-        <th>Nombres</th>
-        <th>Apellidos</th>
-        <th>Correo</th>
-        <th>Usuario</th>
-        <th>Rol</th>
-        <th>Acciones</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let u of users">
         <td>{{ u.id }}</td>
-        <td>{{ u.nombres }}</td>
-        <td>{{ u.apellidos }}</td>
-        <td>{{ u.correo }}</td>
-        <td>{{ u.usuario }}</td>
+        <td>{{ u.first_name }}</td>
+        <td>{{ u.last_name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.username }}</td>
         <td>{{ u.role }}</td>
         <td class="actions">
-          <button title="Editar" (click)="openEdit(u)">✏️</button>
-          <button title="Eliminar" [disabled]="!canDelete()" (click)="remove(u)">🗑️</button>
+          <button title="Edit" (click)="openEdit(u)">✏️</button>
+          <button title="Delete" [disabled]="!canDelete()" (click)="remove(u)">🗑️</button>
         </td>
       </tr>
     </tbody>
@@ -39,42 +39,42 @@
   <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()"></div>
   <div class="modal" *ngIf="showForm">
     <div class="modal-header">
-      <h3>{{ formMode === 'create' ? 'Crear usuario' : 'Editar usuario' }}</h3>
+      <h3>{{ formMode === 'create' ? 'Create user' : 'Edit user' }}</h3>
       <button class="close" (click)="closeForm()">✖</button>
     </div>
     <div class="modal-body">
       <div class="error" *ngIf="formError">{{ formError }}</div>
       <form (ngSubmit)="save()" #f="ngForm">
         <label>
-          Nombres
-          <input name="nombres" [(ngModel)]="form.nombres" required minlength="2" />
+          First name
+          <input name="first_name" [(ngModel)]="form.first_name" required minlength="2" />
         </label>
         <label>
-          Apellidos
-          <input name="apellidos" [(ngModel)]="form.apellidos" required minlength="2" />
+          Last name
+          <input name="last_name" [(ngModel)]="form.last_name" required minlength="2" />
         </label>
         <label>
-          Correo
-          <input name="correo" type="email" [(ngModel)]="form.correo" required email />
+          Email
+          <input name="email" type="email" [(ngModel)]="form.email" required email />
         </label>
         <label>
-          Usuario
-          <input name="usuario" [(ngModel)]="form.usuario" required minlength="3" />
+          Username
+          <input name="username" [(ngModel)]="form.username" required minlength="3" />
         </label>
         <label>
-          Contraseña
-          <input name="contrasena" type="password" [(ngModel)]="form.contrasena" [required]="formMode==='create'" minlength="6" />
+          Password
+          <input name="password" type="password" [(ngModel)]="form.password" [required]="formMode==='create'" minlength="6" />
         </label>
         <label>
-          Rol
+          Role
           <select name="role" [(ngModel)]="form.role" required>
             <option value="admin">admin</option>
             <option value="generic">generic</option>
           </select>
         </label>
         <div class="modal-actions">
-          <button type="submit" [disabled]="f.invalid">Guardar</button>
-          <button type="button" (click)="closeForm()">Cancelar</button>
+          <button type="submit" [disabled]="f.invalid">Save</button>
+          <button type="button" (click)="closeForm()">Cancel</button>
         </div>
       </form>
     </div>

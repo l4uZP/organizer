@@ -5,30 +5,30 @@ import { Observable } from 'rxjs';
 
 export interface User {
   id: number;
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  usuario: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
   role: 'admin' | 'generic';
   created_at: string;
   updated_at: string;
 }
 
 export interface CreateUserRequest {
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  usuario: string;
-  contrasena: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
+  password: string;
   role: 'admin' | 'generic';
 }
 
 export interface UpdateUserRequest {
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  usuario: string;
-  contrasena?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
+  password?: string;
   role?: 'admin' | 'generic';
 }
 

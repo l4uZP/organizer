@@ -13,7 +13,7 @@ import { AuthService } from '../../core/auth.service';
 export class MainComponent {
   isSidebarCollapsed = false;
   profileMenuOpen = false;
-  diarioOpen = false;
+  journalOpen = false;
   adminOpen = false;
 
   constructor(public auth: AuthService) {}
@@ -26,8 +26,8 @@ export class MainComponent {
     this.profileMenuOpen = !this.profileMenuOpen;
   }
 
-  toggleDiario(): void {
-    this.diarioOpen = !this.diarioOpen;
+  toggleJournal(): void {
+    this.journalOpen = !this.journalOpen;
   }
 
   toggleAdmin(): void {
@@ -35,13 +35,13 @@ export class MainComponent {
   }
 
   goToSettings(): void {
-    // Placeholder: aquí se podría navegar a /app/configuraciones
+    // Placeholder: navigate to /app/settings in the future
     this.profileMenuOpen = false;
   }
 
   logout(): void {
     this.auth.logout();
-    // La protección de rutas redirigirá al login
+    // Route guards will redirect to login
     window.location.href = '/login';
   }
 }

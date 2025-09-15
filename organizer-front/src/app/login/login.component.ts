@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
         },
         error: () => {
           this.loading = false;
-          alert('Credenciales inválidas. Use admin / admin');
+          alert('Invalid credentials. Use admin / admin');
         }
       });
     }

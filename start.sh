@@ -1,92 +1,92 @@
 #!/bin/bash
 
-# Script de inicio para Organizer
-# Configura el PATH y ejecuta el proyecto
+# Organizer start script
+# Configures PATH and runs the project
 
-echo "🚀 Iniciando Organizer..."
+echo "🚀 Starting Organizer..."
 
-# Agregar Go al PATH
+# Add Go to PATH
 export PATH=$PATH:/usr/local/go/bin
 
-# Verificar que Go esté disponible
+# Ensure Go is available
 if ! command -v go &> /dev/null; then
-    echo "❌ Error: Go no está instalado o no está en el PATH"
-    echo "   Instala Go desde: https://golang.org/dl/"
+    echo "❌ Error: Go is not installed or not in PATH"
+    echo "   Install Go from: https://golang.org/dl/"
     exit 1
 fi
 
-# Verificar que Docker esté disponible
+# Ensure Docker is available
 if ! command -v docker &> /dev/null; then
-    echo "❌ Error: Docker no está instalado"
-    echo "   Instala Docker desde: https://docs.docker.com/get-docker/"
+    echo "❌ Error: Docker is not installed"
+    echo "   Install Docker from: https://docs.docker.com/get-docker/"
     exit 1
 fi
 
-echo "✅ Dependencias verificadas"
+echo "✅ Dependencies verified"
 
-# Levantar base de datos
-echo "📦 Levantando base de datos PostgreSQL..."
+# Bring up database
+echo "📦 Starting PostgreSQL database..."
 sudo docker-compose up -d postgres
 
-# Esperar a que la base de datos esté lista
-echo "⏳ Esperando a que la base de datos esté lista..."
+# Wait for database readiness
+echo "⏳ Waiting for the database to be ready..."
 sleep 5
 
-# Verificar que la base de datos esté funcionando
+# Check database is responding
 if ! sudo docker exec organizer-postgres pg_isready -U organizer -d organizer &> /dev/null; then
-    echo "❌ Error: La base de datos no está respondiendo"
+    echo "❌ Error: Database is not responding"
     exit 1
 fi
 
-echo "✅ Base de datos lista"
+echo "✅ Database ready"
 
-# Ejecutar el backend
-echo "🔧 Iniciando backend..."
+# Start backend
+echo "🔧 Starting backend..."
 cd organizer-back
 go run . &
 BACKEND_PID=$!
 
-# Esperar a que el backend esté listo
-echo "⏳ Esperando a que el backend esté listo..."
+# Wait a moment for backend
+echo "⏳ Waiting for backend to be ready..."
 sleep 3
 
-# Verificar que el backend esté funcionando
+# Health check
 if ! curl -s http://localhost:8080/api/v1/healthz &> /dev/null; then
-    echo "❌ Error: El backend no está respondiendo"
+    echo "❌ Error: Backend is not responding"
     kill $BACKEND_PID 2>/dev/null
     exit 1
 fi
 
-echo "✅ Backend funcionando en http://localhost:8080"
+echo "✅ Backend running at http://localhost:8080"
 
-# Ejecutar el frontend
-echo "🎨 Iniciando frontend..."
+# Start frontend
+echo "🎨 Starting frontend..."
 cd ../organizer-front
 npm start &
 FRONTEND_PID=$!
 
-echo "✅ Frontend iniciando en http://localhost:4200"
+echo "✅ Frontend starting at http://localhost:4200"
 echo ""
-echo "🎉 ¡Organizer está funcionando!"
+echo "🎉 Organizer is up!"
 echo "   - Backend: http://localhost:8080"
 echo "   - Frontend: http://localhost:4200"
-echo "   - Base de datos: localhost:5432"
+echo "   - Database: localhost:5432"
 echo ""
-echo "Para detener: Ctrl+C"
+echo "Press Ctrl+C to stop"
 
-# Función para limpiar procesos al salir
+# Cleanup on exit
 cleanup() {
     echo ""
-    echo "🛑 Deteniendo servicios..."
+    echo "🛑 Stopping services..."
     kill $BACKEND_PID 2>/dev/null
     kill $FRONTEND_PID 2>/dev/null
     sudo docker-compose down
-    echo "✅ Servicios detenidos"
+    echo "✅ Services stopped"
     exit 0
 }
 
-# Capturar Ctrl+C
+# Trap Ctrl+C
 trap cleanup SIGINT
 
-# Esperar a que el usuario presione Ctrl+C
+# Wait for Ctrl+C
 wait

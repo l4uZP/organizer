@@ -1,6 +1,6 @@
 <div class="app-shell" [class.sidebar-collapsed]="isSidebarCollapsed">
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
-    <div class="sidebar-header" (click)="toggleSidebar()" title="Alternar menú">
+    <div class="sidebar-header" (click)="toggleSidebar()" title="Toggle menu">
       <span class="logo-circle">A</span>
       <span class="brand" *ngIf="!isSidebarCollapsed">App</span>
     </div>
@@ -9,32 +9,32 @@
         <span class="icon">📊</span>
         <span class="label" *ngIf="!isSidebarCollapsed">Dashboard</span>
       </a>
-      <a routerLink="/app/calendario" routerLinkActive="active" class="nav-item">
+      <a routerLink="/app/calendar" routerLinkActive="active" class="nav-item">
         <span class="icon">📅</span>
-        <span class="label" *ngIf="!isSidebarCollapsed">Calendario</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Calendar</span>
       </a>
       <a routerLink="/app/pomodoro" routerLinkActive="active" class="nav-item">
         <span class="icon">⏱️</span>
         <span class="label" *ngIf="!isSidebarCollapsed">Pomodoro</span>
       </a>
 
-      <div class="nav-item has-children" (click)="toggleDiario()">
+      <div class="nav-item has-children" (click)="toggleJournal()">
         <span class="icon">📓</span>
-        <span class="label" *ngIf="!isSidebarCollapsed">Diario</span>
-        <span class="chevron" *ngIf="!isSidebarCollapsed">{{ diarioOpen ? '▾' : '▸' }}</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Journal</span>
+        <span class="chevron" *ngIf="!isSidebarCollapsed">{{ journalOpen ? '▾' : '▸' }}</span>
       </div>
-      <div class="submenu" *ngIf="diarioOpen && !isSidebarCollapsed">
-        <a routerLink="/app/diario/emociones" routerLinkActive="active" class="submenu-item">Emociones</a>
-        <a routerLink="/app/diario/notas" routerLinkActive="active" class="submenu-item">Notas</a>
+      <div class="submenu" *ngIf="journalOpen && !isSidebarCollapsed">
+        <a routerLink="/app/journal/emotions" routerLinkActive="active" class="submenu-item">Emotions</a>
+        <a routerLink="/app/journal/notes" routerLinkActive="active" class="submenu-item">Notes</a>
       </div>
 
       <div class="nav-item has-children" *ngIf="auth.isAdmin()" (click)="toggleAdmin()">
         <span class="icon">🛠️</span>
-        <span class="label" *ngIf="!isSidebarCollapsed">Administración</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Administration</span>
         <span class="chevron" *ngIf="!isSidebarCollapsed">{{ adminOpen ? '▾' : '▸' }}</span>
       </div>
       <div class="submenu" *ngIf="auth.isAdmin() && adminOpen && !isSidebarCollapsed">
-        <a routerLink="/app/usuarios" routerLinkActive="active" class="submenu-item">Usuarios</a>
+        <a routerLink="/app/users" routerLinkActive="active" class="submenu-item">Users</a>
       </div>
     </nav>
   </aside>
@@ -43,10 +43,10 @@
     <header class="topbar">
       <div class="right">
         <div class="profile" (click)="toggleProfileMenu()">
-          <img class="avatar" src="assets/temp-logo.svg" alt="Perfil">
+          <img class="avatar" src="assets/temp-logo.svg" alt="Profile">
           <div class="menu" *ngIf="profileMenuOpen">
-            <button class="menu-item" (click)="goToSettings()">Configuraciones</button>
-            <button class="menu-item" (click)="logout()">Salir</button>
+            <button class="menu-item" (click)="goToSettings()">Settings</button>
+            <button class="menu-item" (click)="logout()">Logout</button>
           </div>
         </div>
       </div>

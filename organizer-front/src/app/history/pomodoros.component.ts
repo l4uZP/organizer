@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-pomodoros-pasado',
+  selector: 'app-history-pomodoros',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="pasado-pomos"><h2>Pomodoros del {{ date }}</h2><p>Pantalla en construcción.</p></div>`,
-  styles: [`.pasado-pomos{padding:12px;}`]
+  template: `<div class="history-pomos"><h2>Pomodoros for {{ date }}</h2><p>Screen under construction.</p></div>`,
+  styles: [`.history-pomos{padding:12px;}`]
 })
 export class PomodorosComponent {
   date = '';

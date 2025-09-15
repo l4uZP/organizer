@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-emociones',
+  selector: 'app-emotions',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './emociones.component.html',
-  styleUrl: './emociones.component.scss'
+  templateUrl: './emotions.component.html',
+  styleUrl: './emotions.component.scss'
 })
-export class EmocionesComponent {}
+export class EmotionsComponent {}
 
 

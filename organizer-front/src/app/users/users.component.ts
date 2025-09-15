@@ -22,11 +22,11 @@ export class UsersComponent implements OnInit {
   formMode: 'create' | 'edit' = 'create';
   editingId: number | null = null;
   form = {
-    nombres: '',
-    apellidos: '',
-    correo: '',
-    usuario: '',
-    contrasena: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    username: '',
+    password: '',
     role: 'generic' as 'admin' | 'generic'
   };
 
@@ -41,14 +41,14 @@ export class UsersComponent implements OnInit {
     this.error = null;
     this.userService.list().subscribe({
       next: (data) => { this.users = data; this.loading = false; },
-      error: (err) => { this.error = err?.error?.error || 'Error cargando usuarios'; this.loading = false; }
+      error: (err) => { this.error = err?.error?.error || 'Error loading users'; this.loading = false; }
     });
   }
 
   openCreate(): void {
     this.formMode = 'create';
     this.editingId = null;
-    this.form = { nombres: '', apellidos: '', correo: '', usuario: '', contrasena: '', role: 'generic' };
+    this.form = { first_name: '', last_name: '', email: '', username: '', password: '', role: 'generic' };
     this.formError = null;
     this.showForm = true;
   }
@@ -56,7 +56,7 @@ export class UsersComponent implements OnInit {
   openEdit(u: User): void {
     this.formMode = 'edit';
     this.editingId = u.id;
-    this.form = { nombres: u.nombres, apellidos: u.apellidos, correo: u.correo, usuario: u.usuario, contrasena: '', role: u.role };
+    this.form = { first_name: u.first_name, last_name: u.last_name, email: u.email, username: u.username, password: '', role: u.role };
     this.formError = null;
     this.showForm = true;
   }
@@ -70,14 +70,14 @@ export class UsersComponent implements OnInit {
     if (this.formMode === 'create') {
       this.userService.create(this.form).subscribe({
         next: () => { this.showForm = false; this.load(); },
-        error: (err) => { this.formError = err?.error?.error || 'Error creando usuario'; }
+        error: (err) => { this.formError = err?.error?.error || 'Error creating user'; }
       });
     } else if (this.editingId != null) {
       const payload: any = { ...this.form };
-      if (!payload.contrasena) delete payload.contrasena;
+      if (!payload.password) delete payload.password;
       this.userService.update(this.editingId, payload).subscribe({
         next: () => { this.showForm = false; this.load(); },
-        error: (err) => { this.formError = err?.error?.error || 'Error actualizando usuario'; }
+        error: (err) => { this.formError = err?.error?.error || 'Error updating user'; }
       });
     }
   }
@@ -88,13 +88,13 @@ export class UsersComponent implements OnInit {
 
   remove(u: User): void {
     if (!this.canDelete()) {
-      this.error = 'No se puede eliminar el último usuario';
+      this.error = 'Cannot delete the last user';
       return;
     }
-    if (!confirm(`¿Eliminar usuario ${u.usuario}?`)) return;
+    if (!confirm(`Delete user ${u.username}?`)) return;
     this.userService.delete(u.id).subscribe({
       next: () => this.load(),
-      error: (err) => { this.error = err?.error?.error || 'Error eliminando usuario'; }
+      error: (err) => { this.error = err?.error?.error || 'Error deleting user'; }
     });
   }
 }

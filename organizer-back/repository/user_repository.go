@@ -20,20 +20,20 @@ func NewUserRepository() *UserRepository {
 // GetUserByUsername retrieves a user by username
 func (r *UserRepository) GetUserByUsername(username string) (*models.User, error) {
 	query := `
-		SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+		SELECT u.id, u.first_name, u.last_name, u.email, u.username, u.password_hash, r.name AS role, u.created_at, u.updated_at 
 		FROM users u
 		JOIN roles r ON r.id = u.role_id
-		WHERE u.usuario = $1
+		WHERE u.username = $1
 	`
 
 	user := &models.User{}
 	err := r.db.QueryRow(query, username).Scan(
 		&user.ID,
-		&user.Nombres,
-		&user.Apellidos,
-		&user.Correo,
-		&user.Usuario,
-		&user.Contrasena,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Username,
+		&user.PasswordHash,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -52,20 +52,20 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 // GetUserByEmail retrieves a user by email
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	query := `
-		SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+		SELECT u.id, u.first_name, u.last_name, u.email, u.username, u.password_hash, r.name AS role, u.created_at, u.updated_at 
 		FROM users u
 		JOIN roles r ON r.id = u.role_id
-		WHERE u.correo = $1
+		WHERE u.email = $1
 	`
 
 	user := &models.User{}
 	err := r.db.QueryRow(query, email).Scan(
 		&user.ID,
-		&user.Nombres,
-		&user.Apellidos,
-		&user.Correo,
-		&user.Usuario,
-		&user.Contrasena,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Username,
+		&user.PasswordHash,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -84,17 +84,17 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 // CreateUser creates a new user
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query := `
-		INSERT INTO users (nombres, apellidos, correo, usuario, contrasena, role_id)
+		INSERT INTO users (first_name, last_name, email, username, password_hash, role_id)
 		VALUES ($1, $2, $3, $4, $5, (SELECT id FROM roles WHERE name = $6))
 		RETURNING id, created_at, updated_at
 	`
 
 	err := r.db.QueryRow(query,
-		user.Nombres,
-		user.Apellidos,
-		user.Correo,
-		user.Usuario,
-		user.Contrasena,
+		user.FirstName,
+		user.LastName,
+		user.Email,
+		user.Username,
+		user.PasswordHash,
 		user.Role,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
@@ -110,7 +110,7 @@ func (r *UserRepository) UserExists(username, email string) (bool, error) {
 	query := `
 		SELECT COUNT(*) 
 		FROM users 
-		WHERE usuario = $1 OR correo = $2
+		WHERE username = $1 OR email = $2
 	`
 
 	var count int
@@ -125,7 +125,7 @@ func (r *UserRepository) UserExists(username, email string) (bool, error) {
 // GetUserByID retrieves a user by id
 func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 	query := `
-        SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+        SELECT u.id, u.first_name, u.last_name, u.email, u.username, u.password_hash, r.name AS role, u.created_at, u.updated_at 
         FROM users u
         JOIN roles r ON r.id = u.role_id
         WHERE u.id = $1
@@ -134,11 +134,11 @@ func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 	user := &models.User{}
 	err := r.db.QueryRow(query, id).Scan(
 		&user.ID,
-		&user.Nombres,
-		&user.Apellidos,
-		&user.Correo,
-		&user.Usuario,
-		&user.Contrasena,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Username,
+		&user.PasswordHash,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -155,7 +155,7 @@ func (r *UserRepository) GetUserByID(id int) (*models.User, error) {
 // ListUsers returns all users
 func (r *UserRepository) ListUsers() ([]models.User, error) {
 	query := `
-        SELECT u.id, u.nombres, u.apellidos, u.correo, u.usuario, u.contrasena, r.name AS role, u.created_at, u.updated_at 
+        SELECT u.id, u.first_name, u.last_name, u.email, u.username, u.password_hash, r.name AS role, u.created_at, u.updated_at 
         FROM users u
         JOIN roles r ON r.id = u.role_id
         ORDER BY u.id ASC
@@ -170,7 +170,7 @@ func (r *UserRepository) ListUsers() ([]models.User, error) {
 	users := []models.User{}
 	for rows.Next() {
 		var u models.User
-		if err := rows.Scan(&u.ID, &u.Nombres, &u.Apellidos, &u.Correo, &u.Usuario, &u.Contrasena, &u.Role, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		if err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Username, &u.PasswordHash, &u.Role, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("error scanning user: %v", err)
 		}
 		users = append(users, u)
@@ -185,12 +185,12 @@ func (r *UserRepository) ListUsers() ([]models.User, error) {
 func (r *UserRepository) UpdateUser(user *models.User) error {
 	query := `
         UPDATE users 
-        SET nombres=$1, apellidos=$2, correo=$3, usuario=$4, contrasena=$5, role_id=(SELECT id FROM roles WHERE name=$6), updated_at=NOW()
+        SET first_name=$1, last_name=$2, email=$3, username=$4, password_hash=$5, role_id=(SELECT id FROM roles WHERE name=$6), updated_at=NOW()
         WHERE id=$7
         RETURNING updated_at
     `
 
-	return r.db.QueryRow(query, user.Nombres, user.Apellidos, user.Correo, user.Usuario, user.Contrasena, user.Role, user.ID).Scan(&user.UpdatedAt)
+	return r.db.QueryRow(query, user.FirstName, user.LastName, user.Email, user.Username, user.PasswordHash, user.Role, user.ID).Scan(&user.UpdatedAt)
 }
 
 // DeleteUser deletes a user by id

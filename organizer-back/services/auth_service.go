@@ -31,12 +31,12 @@ func (s *AuthService) Login(username, password string) (*models.UserResponse, st
 	}
 
 	// Check password
-	if !s.checkPassword(password, user.Contrasena) {
+	if !s.checkPassword(password, user.PasswordHash) {
 		return nil, "", errors.New("invalid credentials")
 	}
 
 	// Generate JWT token
-	token, err := s.generateToken(user.ID, user.Usuario, user.Role)
+	token, err := s.generateToken(user.ID, user.Username, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -49,7 +49,7 @@ func (s *AuthService) Login(username, password string) (*models.UserResponse, st
 // Register creates a new user
 func (s *AuthService) Register(userReq *models.UserCreateRequest) (*models.UserResponse, error) {
 	// Check if user already exists
-	exists, err := s.userRepo.UserExists(userReq.Usuario, userReq.Correo)
+	exists, err := s.userRepo.UserExists(userReq.Username, userReq.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -58,19 +58,19 @@ func (s *AuthService) Register(userReq *models.UserCreateRequest) (*models.UserR
 	}
 
 	// Hash password
-	hashedPassword, err := s.hashPassword(userReq.Contrasena)
+	hashedPassword, err := s.hashPassword(userReq.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create user
 	user := &models.User{
-		Nombres:    userReq.Nombres,
-		Apellidos:  userReq.Apellidos,
-		Correo:     userReq.Correo,
-		Usuario:    userReq.Usuario,
-		Contrasena: hashedPassword,
-		Role:       defaultRole(userReq.Role),
+		FirstName:    userReq.FirstName,
+		LastName:     userReq.LastName,
+		Email:        userReq.Email,
+		Username:     userReq.Username,
+		PasswordHash: hashedPassword,
+		Role:         defaultRole(userReq.Role),
 	}
 
 	err = s.userRepo.CreateUser(user)

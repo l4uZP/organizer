@@ -3,23 +3,23 @@
 FRONT_DIR := organizer-front
 BACK_DIR := organizer-back
 
-# Ejecuta backend (Go) y frontend (Angular) en paralelo
+# Run backend (Go) and frontend (Angular) in parallel
 dev: db-up
 	$(MAKE) -j 2 start-back start-front
 
-# Solo backend
+# Backend only
 back: db-up start-back
 
 start-back:
 	cd $(BACK_DIR) && PATH=$$PATH:/usr/local/go/bin go run .
 
-# Solo frontend
+# Frontend only
 front: start-front
 
 start-front:
 	cd $(FRONT_DIR) && npx ng serve
 
-# Base de datos
+# Database
 db-up:
 	sudo docker-compose up -d postgres
 
@@ -27,18 +27,17 @@ db-down:
 	sudo docker-compose down
 
 db-reset: db-down db-up
-	@echo "Base de datos reiniciada"
+	@echo "Database has been reset"
 
 db-logs:
 	sudo docker-compose logs -f postgres
 
-
-# Aplica TODAS las migraciones .sql dentro de organizer-back/migrations al contenedor ya levantado
+# Apply ALL .sql migrations inside organizer-back/migrations to the running container
 db-migrate:
-	@echo "Aplicando migraciones SQL dentro del contenedor..."
-	sudo docker exec -i organizer-postgres bash -lc 'set -e; for f in $$(ls -1 /docker-entrypoint-initdb.d/*.sql | sort); do echo "--> $$f"; psql -v ON_ERROR_STOP=1 -U $$POSTGRES_USER -d $$POSTGRES_DB -f "$$f"; done; echo "Migraciones aplicadas."'
+	@echo "Applying SQL migrations inside the container..."
+	sudo docker exec -i organizer-postgres bash -lc 'set -e; for f in $$(ls -1 /docker-entrypoint-initdb.d/*.sql | sort); do echo "--> $$f"; psql -v ON_ERROR_STOP=1 -U $$POSTGRES_USER -d $$POSTGRES_DB -f "$$f"; done; echo "Migrations applied."'
 
-# Abre una sesión psql dentro del contenedor (útil para debug)
+# Open a psql session inside the container (useful for debugging)
 db-psql:
 	sudo docker exec -it organizer-postgres psql -U organizer -d organizer
 

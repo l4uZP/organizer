@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-pasado',
+  selector: 'app-history',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './pasado.component.html',
-  styleUrls: ['./pasado.component.scss']
+  templateUrl: './history.component.html',
+  styleUrls: ['./history.component.scss']
 })
-export class PasadoComponent {
+export class HistoryComponent {
   date = '';
 
   constructor(private router: Router, private route: ActivatedRoute) {
@@ -18,8 +18,8 @@ export class PasadoComponent {
     });
   }
 
-  goNotas(): void {
-    this.router.navigate(['./notas'], { relativeTo: this.route, queryParams: { date: this.date } });
+  goNotes(): void {
+    this.router.navigate(['./notes'], { relativeTo: this.route, queryParams: { date: this.date } });
   }
 
   goPomodoros(): void {

@@ -4,9 +4,9 @@ import { MainComponent } from './layout/main/main.component';
 import { authGuard } from './core/auth.guard';
 import { inject } from '@angular/core';
 import { AuthService } from './core/auth.service';
-import { PasadoComponent } from './pasado/pasado.component';
-import { PasadoNotasComponent } from './pasado/pasado-notas.component';
-import { PomodorosComponent } from './pasado/pomodoros.component';
+import { HistoryComponent } from './history/history.component';
+import { HistoryNotesComponent } from './history/history-notes.component';
+import { PomodorosComponent } from './history/pomodoros.component';
 
 export const adminGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
@@ -27,8 +27,8 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
       {
-        path: 'calendario',
-        loadComponent: () => import('./calendario/calendario.component').then(m => m.CalendarioComponent)
+        path: 'calendar',
+        loadComponent: () => import('./calendar/calendar.component').then(m => m.CalendarComponent)
       },
       {
         path: 'pomodoro',
@@ -36,29 +36,29 @@ export const routes: Routes = [
       }
       ,
       {
-        path: 'usuarios',
+        path: 'users',
         loadComponent: () => import('./users/users.component').then(m => m.UsersComponent),
         canActivate: [adminGuard]
       },
       {
-        path: 'diario',
+        path: 'journal',
         children: [
-          { path: '', redirectTo: 'emociones', pathMatch: 'full' },
+          { path: '', redirectTo: 'emotions', pathMatch: 'full' },
           {
-            path: 'emociones',
-            loadComponent: () => import('./diario/emociones/emociones.component').then(m => m.EmocionesComponent)
+            path: 'emotions',
+            loadComponent: () => import('./journal/emotions/emotions.component').then(m => m.EmotionsComponent)
           },
           {
-            path: 'notas',
-            loadComponent: () => import('./diario/notas/notas.component').then(m => m.NotasComponent)
+            path: 'notes',
+            loadComponent: () => import('./journal/notes/notes.component').then(m => m.NotesComponent)
           }
         ]
       },
       {
-        path: 'pasado',
+        path: 'history',
         children: [
-          { path: '', component: PasadoComponent },
-          { path: 'notas', component: PasadoNotasComponent },
+          { path: '', component: HistoryComponent },
+          { path: 'notes', component: HistoryNotesComponent },
           { path: 'pomodoros', component: PomodorosComponent }
         ]
       }

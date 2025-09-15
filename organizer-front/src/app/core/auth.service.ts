@@ -4,10 +4,10 @@ import { HttpClient } from '@angular/common/http';
 
 interface UserResponse {
   id: number;
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  usuario: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
   role: 'admin' | 'generic';
   created_at: string;
   updated_at: string;
@@ -76,7 +76,7 @@ export class AuthService {
     if (!raw) return null;
     try {
       const u: UserResponse = JSON.parse(raw);
-      return u.usuario;
+      return u.username;
     } catch {
       return raw;
     }

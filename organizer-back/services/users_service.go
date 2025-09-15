@@ -37,7 +37,7 @@ func (s *UsersService) GetUser(id int) (*models.UserResponse, error) {
 
 func (s *UsersService) CreateUser(req *models.UserCreateRequest) (*models.UserResponse, error) {
 	// Prevent duplicates
-	exists, err := s.userRepo.UserExists(req.Usuario, req.Correo)
+	exists, err := s.userRepo.UserExists(req.Username, req.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -47,18 +47,18 @@ func (s *UsersService) CreateUser(req *models.UserCreateRequest) (*models.UserRe
 
 	// Hash password using AuthService method to avoid duplication
 	auth := NewAuthService()
-	hashed, err := auth.hashPassword(req.Contrasena)
+	hashed, err := auth.hashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	u := &models.User{
-		Nombres:    req.Nombres,
-		Apellidos:  req.Apellidos,
-		Correo:     req.Correo,
-		Usuario:    req.Usuario,
-		Contrasena: hashed,
-		Role:       defaultRole(req.Role),
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		Email:        req.Email,
+		Username:     req.Username,
+		PasswordHash: hashed,
+		Role:         defaultRole(req.Role),
 	}
 	if err := s.userRepo.CreateUser(u); err != nil {
 		return nil, err
@@ -74,21 +74,21 @@ func (s *UsersService) UpdateUser(id int, req *models.UserUpdateRequest) (*model
 	}
 
 	// If changing username/email, it's ok as long as DB constraints allow; ideally check duplicates
-	current.Nombres = req.Nombres
-	current.Apellidos = req.Apellidos
-	current.Correo = req.Correo
-	current.Usuario = req.Usuario
+	current.FirstName = req.FirstName
+	current.LastName = req.LastName
+	current.Email = req.Email
+	current.Username = req.Username
 	if req.Role != "" {
 		current.Role = defaultRole(req.Role)
 	}
 
-	if req.Contrasena != "" {
+	if req.Password != "" {
 		auth := NewAuthService()
-		hashed, err := auth.hashPassword(req.Contrasena)
+		hashed, err := auth.hashPassword(req.Password)
 		if err != nil {
 			return nil, err
 		}
-		current.Contrasena = hashed
+		current.PasswordHash = hashed
 	}
 
 	if err := s.userRepo.UpdateUser(current); err != nil {

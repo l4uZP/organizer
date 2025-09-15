@@ -5,13 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { NotesService, Note } from './notes.service';
 
 @Component({
-  selector: 'app-notas',
+  selector: 'app-notes',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  templateUrl: './notas.component.html',
-  styleUrl: './notas.component.scss'
+  templateUrl: './notes.component.html',
+  styleUrl: './notes.component.scss'
 })
-export class NotasComponent {
+export class NotesComponent {
   today = new Date();
   todayStr = this.formatDate(this.today);
   form: FormGroup;
@@ -65,7 +65,6 @@ export class NotasComponent {
     const id = this.selected.id;
     const newContent = this.editingContent;
     this.notesSvc.update(id, { content: newContent }).subscribe((n) => {
-      // update local list
       const idx = this.notes.findIndex(x => x.id === id);
       if (idx >= 0) this.notes[idx] = n;
       this.selected = n;

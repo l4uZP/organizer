@@ -9,7 +9,7 @@ import { NotesService, Note } from './notes.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './notes.component.html',
-  styleUrl: './notes.component.scss'
+  styleUrls: ['./notes.component.scss']
 })
 export class NotesComponent {
   today = new Date();

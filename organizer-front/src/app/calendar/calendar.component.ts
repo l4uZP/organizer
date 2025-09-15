@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.scss'
+  styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent implements OnInit {
   today = new Date();

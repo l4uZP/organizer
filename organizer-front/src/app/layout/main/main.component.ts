@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { AuthService } from '../../core/auth.service';
@@ -8,15 +8,28 @@ import { AuthService } from '../../core/auth.service';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, NgIf],
   templateUrl: './main.component.html',
-  styleUrl: './main.component.scss'
+  styleUrls: ['./main.component.scss']
 })
 export class MainComponent {
-  isSidebarCollapsed = false;
+  isSidebarCollapsed = true;
   profileMenuOpen = false;
   journalOpen = false;
   adminOpen = false;
 
   constructor(public auth: AuthService) {}
+
+  @HostListener('window:resize')
+  onResize() {
+    if (window.innerWidth > 1024) {
+      this.isSidebarCollapsed = false;
+    } else {
+      this.isSidebarCollapsed = true;
+    }
+  }
+
+  ngOnInit() {
+    this.onResize();
+  }
 
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;

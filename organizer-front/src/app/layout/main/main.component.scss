@@ -164,3 +164,88 @@
   padding: 16px;
 }
 
+/* Backdrop for mobile sidebar */
+.backdrop {
+  display: none;
+}
+
+/* Responsive rules */
+@media (max-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 0 1fr;
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 0 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 240px;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-in-out;
+    z-index: 1000;
+  }
+
+  /* When not collapsed, show sidebar as overlay */
+  .app-shell:not(.sidebar-collapsed) .sidebar {
+    transform: translateX(0);
+  }
+
+  .topbar {
+    justify-content: space-between;
+  }
+
+  .menu-btn {
+    display: inline-block;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+  }
+
+  .page {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-item {
+    grid-template-columns: 24px auto;
+    padding: 10px;
+  }
+
+  .submenu {
+    padding-left: 28px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Hide hamburger by default on desktop */
+.menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Ensure mobile rule overrides cascade */
+@media (max-width: 1024px) {
+  .menu-btn {
+    display: inline-block !important;
+  }
+}
+

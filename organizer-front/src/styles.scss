@@ -76,3 +76,24 @@ body {
     text-decoration: underline;
   }
 }
+
+/* Responsive helpers */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .form-control {
+    padding: 10px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  body {
+    font-size: 13px;
+  }
+}

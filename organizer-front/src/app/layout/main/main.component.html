@@ -41,6 +41,9 @@
 
   <main class="content">
     <header class="topbar">
+      <div class="left">
+        <button class="menu-btn" (click)="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      </div>
       <div class="right">
         <div class="profile" (click)="toggleProfileMenu()">
           <img class="avatar" src="assets/temp-logo.svg" alt="Profile">
@@ -56,3 +59,4 @@
     </section>
   </main>
 </div>
+<div class="backdrop" *ngIf="!isSidebarCollapsed" (click)="toggleSidebar()"></div>

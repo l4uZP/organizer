@@ -9,7 +9,7 @@ import { User, UserService } from './user.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.scss'
+  styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];

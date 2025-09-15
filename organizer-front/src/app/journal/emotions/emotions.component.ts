@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './emotions.component.html',
-  styleUrl: './emotions.component.scss'
+  styleUrls: ['./emotions.component.scss']
 })
 export class EmotionsComponent {}
 

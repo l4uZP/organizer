@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './pomodoro.component.html',
-  styleUrl: './pomodoro.component.scss'
+  styleUrls: ['./pomodoro.component.scss']
 })
 export class PomodoroComponent implements OnDestroy {
   // Settings

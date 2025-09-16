@@ -47,6 +47,7 @@
           <summary><span class="num">{{ day!.getDate() }}</span></summary>
           <nav class="menu">
             <a [routerLink]="['/app/history']" [queryParams]="{ date: iso(day!) }">History</a>
+            <a [routerLink]="['/app/pending/reminders']" [queryParams]="{ date: iso(day!) }">Reminders</a>
           </nav>
         </details>
       }

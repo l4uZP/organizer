@@ -55,6 +55,20 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'pending',
+        children: [
+          { path: '', redirectTo: 'reminders', pathMatch: 'full' },
+          {
+            path: 'reminders',
+            loadComponent: () => import('./pending/reminders/reminders.component').then(m => m.RemindersComponent)
+          },
+          {
+            path: 'todos',
+            loadComponent: () => import('./pending/todos/todos.component').then(m => m.TodosComponent)
+          }
+        ]
+      },
+      {
         path: 'history',
         children: [
           { path: '', component: HistoryComponent },

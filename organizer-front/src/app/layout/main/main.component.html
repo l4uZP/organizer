@@ -28,6 +28,16 @@
         <a routerLink="/app/journal/notes" routerLinkActive="active" class="submenu-item">Notes</a>
       </div>
 
+      <div class="nav-item has-children" (click)="togglePending()">
+        <span class="icon">📝</span>
+        <span class="label" *ngIf="!isSidebarCollapsed">Pending</span>
+        <span class="chevron" *ngIf="!isSidebarCollapsed">{{ pendingOpen ? '▾' : '▸' }}</span>
+      </div>
+      <div class="submenu" *ngIf="pendingOpen && !isSidebarCollapsed">
+        <a routerLink="/app/pending/reminders" routerLinkActive="active" class="submenu-item">Reminders</a>
+        <a routerLink="/app/pending/todos" routerLinkActive="active" class="submenu-item">TODOs</a>
+      </div>
+
       <div class="nav-item has-children" *ngIf="auth.isAdmin()" (click)="toggleAdmin()">
         <span class="icon">🛠️</span>
         <span class="label" *ngIf="!isSidebarCollapsed">Administration</span>

@@ -15,6 +15,7 @@ export class MainComponent {
   profileMenuOpen = false;
   journalOpen = false;
   adminOpen = false;
+  pendingOpen = false;
 
   constructor(public auth: AuthService) {}
 
@@ -45,6 +46,10 @@ export class MainComponent {
 
   toggleAdmin(): void {
     this.adminOpen = !this.adminOpen;
+  }
+
+  togglePending(): void {
+    this.pendingOpen = !this.pendingOpen;
   }
 
   goToSettings(): void {

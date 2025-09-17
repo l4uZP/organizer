@@ -16,12 +16,20 @@
   background: #3a3a3a;
 }
 
-.dot.active {
+.dot.iteration {
   background: #2ecc71;
 }
 
-.dot.done {
-  background: #9be7ad;
+.dot.inactive {
+  opacity: 0.5;
+}
+
+.dot.short {
+  background: #297ce8;
+}
+
+.dot.long {
+  background: #f39c12;
 }
 
 .timer {

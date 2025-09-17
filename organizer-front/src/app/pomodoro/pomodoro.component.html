@@ -1,11 +1,6 @@
 <div class="pomodoro">
   <div class="dots">
-    <span *ngFor="let d of dots; let idx = index"
-          class="dot"
-          [class.done]="idx + 1 <= completedIterations"
-          [class.active]="idx + 1 === currentIteration && phase === 'focus'"
-          title="Iteración {{ idx + 1 }}">
-    </span>
+    <span class="dot" *ngFor="let d of dotsArray; let idx = index" [class]="d"></span>
   </div>
 
   <div class="timer" [class.break-phase]="phase !== 'focus'">
@@ -24,13 +19,13 @@
   </div>
 
   <div class="controls">
-    <button class="btn btn-primary" (click)="toggleRun()">
+    <button class="btn btn-primary" (click)="toggleRun.emit()">
       {{ isRunning ? 'Pausa' : 'Iniciar' }}
     </button>
-    <button class="btn" (click)="skip()">Saltar</button>
-    <button class="btn" (click)="toggleSettings()">Configurar</button>
+    <button class="btn" (click)="skip.emit()">Saltar</button>
+    <button class="btn" (click)="onToggleSettings()">Configurar</button>
     <label class="auto-continue">
-      <input type="checkbox" [(ngModel)]="autoContinue">
+      <input type="checkbox" [(ngModel)]="autoContinueLocal">
       Ejecución continua
     </label>
   </div>
@@ -38,22 +33,26 @@
   <div class="settings" *ngIf="showSettings">
     <div class="row">
       <label>Focus (min)</label>
-      <input type="number" [(ngModel)]="focusMinutes" min="1">
+      <input type="number" [(ngModel)]="focusMinutesLocal" min="1">
     </div>
     <div class="row">
       <label>Pausa corta (min)</label>
-      <input type="number" [(ngModel)]="shortBreakMinutes" min="1">
+      <input type="number" [(ngModel)]="shortBreakMinutesLocal" min="1">
     </div>
     <div class="row">
       <label>Pausa larga (min)</label>
-      <input type="number" [(ngModel)]="longBreakMinutes" min="1">
+      <input type="number" [(ngModel)]="longBreakMinutesLocal" min="1">
+    </div>
+    <div class="row">
+      <label>Intervalo de pausas largas (focus)</label>
+      <input type="number" [(ngModel)]="longBreakIntervalLocal" min="1" max="20">
     </div>
     <div class="row">
       <label>Iteraciones</label>
-      <input type="number" [(ngModel)]="iterationsPerCycle" min="1" max="10">
+      <input type="number" [(ngModel)]="iterationsPerCycleLocal" min="1" max="10">
     </div>
     <div class="row">
-      <button class="btn btn-primary" (click)="applySettings()">Aplicar</button>
+      <button class="btn btn-primary" (click)="onApplySettings()">Aplicar</button>
     </div>
   </div>
 
@@ -63,11 +62,11 @@
       <p>¿Deseas continuar con más iteraciones o terminar la sesión?</p>
       <div class="row">
         <label>Iteraciones adicionales</label>
-        <input type="number" [(ngModel)]="extraIterations" min="1" max="20">
+        <input type="number" [(ngModel)]="extraIterationsLocal" min="1" max="20">
       </div>
       <div class="actions">
-        <button class="btn btn-primary" (click)="continueAfterCompletion()">Continuar</button>
-        <button class="btn" (click)="endSession()">Terminar sesión</button>
+        <button class="btn btn-primary" (click)="continueAfterCompletion.emit()">Continuar</button>
+        <button class="btn" (click)="endSession.emit()">Terminar sesión</button>
       </div>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,240 +9,127 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './pomodoro.component.html',
   styleUrls: ['./pomodoro.component.scss']
 })
-export class PomodoroComponent implements OnDestroy {
-  // Settings
-  focusMinutes = 25;
-  shortBreakMinutes = 5;
-  longBreakMinutes = 15;
-  iterationsPerCycle = 4;
+export class PomodoroComponent implements OnInit, OnChanges {
+  @Input() longBreakInterval = 4;
+  @Input() iterationsPerCycle = 4;
+  
 
-  // State
-  phase: 'focus' | 'short' | 'long' = 'focus';
-  currentIteration = 1; // 1..iterationsPerCycle
-  completedCount = 0; // total completed focus sessions
-  private lastCompletionWasSkip = false;
-  isRunning = false;
-  remainingSeconds = this.focusMinutes * 60;
-  totalSeconds = this.remainingSeconds;
-  timerId: number | null = null;
-  showSettings = false;
-  autoContinue = true;
-  private audioCtx: AudioContext | null = null;
-  showCompletion = false;
-  extraIterations = 2;
+  get dotsArray() {
+    let totalDotsInScreen = this.iterationsPerCycle * 2;
+    let dots = Array(totalDotsInScreen);
 
-  ngOnDestroy(): void {
-    this.clearTimer();
-  }
-
-  toggleRun(): void {
-    this.isRunning ? this.pause() : this.start();
-  }
-
-  start(): void {
-    if (this.isRunning) return;
-    this.isRunning = true;
-    this.tick();
-    this.timerId = window.setInterval(() => this.tick(), 1000);
-  }
-
-  pause(): void {
-    this.isRunning = false;
-    this.clearTimer();
-  }
-
-  resetPhase(): void {
-    const seconds = this.phase === 'focus'
-      ? this.focusMinutes * 60
-      : this.phase === 'short'
-        ? this.shortBreakMinutes * 60
-        : this.longBreakMinutes * 60;
-    this.totalSeconds = seconds;
-    this.remainingSeconds = seconds;
-  }
-
-  private tick(): void {
-    if (this.remainingSeconds > 0) {
-      this.remainingSeconds -= 1;
-      return;
-    }
-    // Phase complete: advance
-    // Increase completed counter only when a focus ends naturally
-    if (this.phase === 'focus') {
-      this.completedCount += 1;
-    }
-    this.beep();
-    if (this.phase === 'long') {
-      // End of cycle → ask user
-      this.pause();
-      this.lastCompletionWasSkip = false;
-      this.showCompletion = true;
-      return;
-    }
-    const wasRunning = this.isRunning;
-    this.advancePhase();
-    if (!this.autoContinue) {
-      this.pause();
-      this.isRunning = false;
-    } else if (!wasRunning) {
-      this.start();
-    }
-  }
-
-  private advancePhase(): void {
-    if (this.phase === 'focus') {
-      if (this.currentIteration % this.iterationsPerCycle === 0) {
-        this.phase = 'long';
-      } else {
-        this.phase = 'short';
+    for (let i = 0; i < dots.length; i++) {
+      if (i % 2 == 0){
+        dots[i] = 'iteration inactive';
       }
-    } else {
-      // After a break, advance iteration and go to focus
-      if (this.phase === 'long') {
-        // Normally handled by completion modal
-        this.currentIteration = 1;
-      } else {
-        this.currentIteration += 1;
+      let longBreakIndex = (this.longBreakInterval*2)-1;
+      if (longBreakIndex == i){
+        dots[i] = 'long inactive';
       }
-      this.phase = 'focus';
     }
-    this.resetPhase();
+    return dots;
   }
 
-  private beep(): void {
-    try {
-      if (!this.audioCtx) {
-        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-      const ctx = this.audioCtx;
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = this.phase === 'focus' ? 880 : 660;
-      g.gain.value = 0.001;
-      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start();
-      o.stop(ctx.currentTime + 0.32);
-    } catch {}
+  // Inputs (state provided by container)
+  @Input() focusMinutes = 25;
+  @Input() shortBreakMinutes = 5;
+  @Input() longBreakMinutes = 15;
+  
+  
+
+  @Input() phase: 'focus' | 'short' | 'long' = 'focus';
+  @Input() currentIteration = 1;
+  @Input() completedIterations = 0;
+  // @Input() dots: Array<'focus' | 'short' | 'long' | 'done'> = [];
+
+  @Input() isRunning = false;
+  @Input() autoContinue = true;
+  @Input() percentage = 0;
+  @Input() displayTime = '00:00';
+  @Input() showSettings = false;
+  @Input() showCompletion = false;
+  @Input() extraIterations = 2;
+
+  // Outputs (events to container)
+  @Output() toggleRun = new EventEmitter<void>();
+  @Output() skip = new EventEmitter<void>();
+  @Output() toggleSettings = new EventEmitter<void>();
+  @Output() applySettings = new EventEmitter<void>();
+  @Output() continueAfterCompletion = new EventEmitter<void>();
+  @Output() endSession = new EventEmitter<void>();
+
+  // Settings changes
+  @Output() autoContinueChange = new EventEmitter<boolean>();
+  @Output() focusMinutesChange = new EventEmitter<number>();
+  @Output() shortBreakMinutesChange = new EventEmitter<number>();
+  @Output() longBreakMinutesChange = new EventEmitter<number>();
+  @Output() longBreakIntervalChange = new EventEmitter<number>();
+  @Output() iterationsPerCycleChange = new EventEmitter<number>();
+  @Output() extraIterationsChange = new EventEmitter<number>();
+
+  // Local state for settings UI so it works standalone and with a container
+  autoContinueLocal = this.autoContinue;
+  focusMinutesLocal = this.focusMinutes;
+  shortBreakMinutesLocal = this.shortBreakMinutes;
+  longBreakMinutesLocal = this.longBreakMinutes;
+  longBreakIntervalLocal = this.longBreakInterval;
+  iterationsPerCycleLocal = this.iterationsPerCycle;
+  extraIterationsLocal = this.extraIterations;
+
+  ngOnInit(): void {
+    this.syncLocalsFromInputs();
   }
 
-  toggleSettings(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    // Keep local form values in sync if parent updates inputs
+    if (
+      changes['autoContinue'] ||
+      changes['focusMinutes'] ||
+      changes['shortBreakMinutes'] ||
+      changes['longBreakMinutes'] ||
+      changes['longBreakInterval'] ||
+      changes['iterationsPerCycle'] ||
+      changes['extraIterations']
+    ) {
+      this.syncLocalsFromInputs();
+    }
+  }
+
+  private syncLocalsFromInputs(): void {
+    this.autoContinueLocal = this.autoContinue;
+    this.focusMinutesLocal = this.focusMinutes;
+    this.shortBreakMinutesLocal = this.shortBreakMinutes;
+    this.longBreakMinutesLocal = this.longBreakMinutes;
+    this.longBreakIntervalLocal = this.longBreakInterval;
+    this.iterationsPerCycleLocal = this.iterationsPerCycle;
+    this.extraIterationsLocal = this.extraIterations;
+  }
+
+  onToggleSettings(): void {
     this.showSettings = !this.showSettings;
+    this.toggleSettings.emit();
   }
 
-  applySettings(): void {
-    // Clamp values for sanity
-    this.focusMinutes = Math.max(1, Math.floor(this.focusMinutes));
-    this.shortBreakMinutes = Math.max(1, Math.floor(this.shortBreakMinutes));
-    this.longBreakMinutes = Math.max(1, Math.floor(this.longBreakMinutes));
-    this.iterationsPerCycle = Math.min(10, Math.max(1, Math.floor(this.iterationsPerCycle)));
-    // Reset depending on current phase
-    this.resetPhase();
-    if (this.isRunning) {
-      // Ensure timer continues with new total
-      this.clearTimer();
-      this.timerId = window.setInterval(() => this.tick(), 1000);
-    }
+  onApplySettings(): void {
+    // Update internal inputs so the component works standalone
+    this.autoContinue = this.autoContinueLocal;
+    this.focusMinutes = this.focusMinutesLocal;
+    this.shortBreakMinutes = this.shortBreakMinutesLocal;
+    this.longBreakMinutes = this.longBreakMinutesLocal;
+    this.longBreakInterval = this.longBreakIntervalLocal;
+    this.iterationsPerCycle = this.iterationsPerCycleLocal;
+    this.extraIterations = this.extraIterationsLocal;
+
+    // Emit for containers that listen
+    this.autoContinueChange.emit(this.autoContinue);
+    this.focusMinutesChange.emit(this.focusMinutes);
+    this.shortBreakMinutesChange.emit(this.shortBreakMinutes);
+    this.longBreakMinutesChange.emit(this.longBreakMinutes);
+    this.longBreakIntervalChange.emit(this.longBreakInterval);
+    this.iterationsPerCycleChange.emit(this.iterationsPerCycle);
+    this.extraIterationsChange.emit(this.extraIterations);
+
+    this.applySettings.emit();
     this.showSettings = false;
-  }
-
-  get percentage(): number {
-    return this.totalSeconds === 0 ? 0 : (this.remainingSeconds / this.totalSeconds) * 100;
-  }
-
-  get displayTime(): string {
-    const m = Math.floor(this.remainingSeconds / 60).toString().padStart(2, '0');
-    const s = Math.floor(this.remainingSeconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
-
-  // Completed iterations shown in dots
-  get completedIterations(): number {
-    if (this.phase === 'long' || this.showCompletion) {
-      // If completion triggered by skip, do not mark the last one as done
-      return this.lastCompletionWasSkip ? (this.completedCount % this.iterationsPerCycle) : this.iterationsPerCycle;
-    }
-    return this.completedCount % this.iterationsPerCycle;
-  }
-
-  get dots(): Array<'focus' | 'short' | 'long' | 'done'> {
-    const arr: Array<'focus' | 'short' | 'long' | 'done'> = [];
-    for (let i = 1; i <= this.iterationsPerCycle; i++) {
-      if (i <= this.completedIterations) arr.push('done');
-      else arr.push('focus');
-    }
-    return arr;
-  }
-
-  private clearTimer(): void {
-    if (this.timerId !== null) {
-      clearInterval(this.timerId);
-      this.timerId = null;
-    }
-  }
-
-  // Called when the user chooses to continue after completing the cycle
-  continueAfterCompletion(): void {
-    const add = Math.max(1, Math.floor(this.extraIterations || 0));
-    const prevTotal = this.iterationsPerCycle;
-    this.iterationsPerCycle = prevTotal + add;
-    this.showCompletion = false;
-    this.phase = 'focus';
-    // Continue from where it left: next iteration after the previous total
-    this.currentIteration = prevTotal + 1;
-    this.resetPhase();
-    if (this.autoContinue) {
-      this.start();
-    }
-  }
-
-  // Called when the user ends the session
-  endSession(): void {
-    this.showCompletion = false;
-    this.pause();
-    alert('¡Gracias por tu trabajo! Sesión finalizada.');
-    // Reset counters but keep user settings
-    this.phase = 'focus';
-    this.currentIteration = 1;
-    this.resetPhase();
-  }
-
-  // Skip current phase
-  skip(): void {
-    const wasLong = this.phase === 'long';
-    if (this.phase === 'focus') {
-      // Do not count this iteration; jump directly to next iteration focus
-      this.currentIteration += 1;
-      if (this.currentIteration > this.iterationsPerCycle) {
-        // Completed planned iterations (skipped the last one)
-        this.pause();
-        this.lastCompletionWasSkip = true;
-        this.showCompletion = true;
-        return;
-      }
-      this.phase = 'focus';
-      this.resetPhase();
-    } else if (this.phase === 'short') {
-      // End break and move to next iteration
-      this.currentIteration += 1;
-      if (this.currentIteration > this.iterationsPerCycle) {
-        // Reached end by skipping during break → show completion
-        this.pause();
-        this.lastCompletionWasSkip = true;
-        this.showCompletion = true;
-        return;
-      }
-      this.phase = 'focus';
-      this.resetPhase();
-    } else if (wasLong) {
-      // Skipping long break => completion
-      this.pause();
-      this.lastCompletionWasSkip = true;
-      this.showCompletion = true;
-      return;
-    }
   }
 }

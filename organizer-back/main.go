@@ -28,11 +28,11 @@ type LoginResponse struct {
 }
 
 func main() {
-	// Initialize database
-	if err := database.InitDB(); err != nil {
+	db := database.NewDB()
+	if err := db.InitDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
-	defer database.CloseDB()
+	defer db.CloseDB()
 
 	// Initialize services
 	authService := services.NewAuthService()

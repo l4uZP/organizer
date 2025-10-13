@@ -9,21 +9,34 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type db struct {
+	host     string
+	port     string
+	user     string
+	password string
+	name     string
+	sslmode  string
+}
+
 var DB *sql.DB
 
-// InitDB initializes the database connection
-func InitDB() error {
-	// Database connection parameters
-	host := getEnv("DB_HOST", "localhost")
-	port := getEnv("DB_PORT", "5432")
-	user := getEnv("DB_USER", "organizer")
-	password := getEnv("DB_PASSWORD", "organizer123")
-	dbname := getEnv("DB_NAME", "organizer")
-	sslmode := getEnv("DB_SSLMODE", "disable")
+func NewDB() *db {
+	log.Println("Creating new database...")
+	return &db{
+		host:     getEnv("DB_HOST", "localhost"),
+		port:     getEnv("DB_PORT", "5432"),
+		user:     getEnv("DB_USER", "organizer"),
+		password: getEnv("DB_PASSWORD", "organizer123"),
+		name:     getEnv("DB_NAME", "organizer"),
+		sslmode:  getEnv("DB_SSLMODE", "disable"),
+	}
+}
 
-	// Connection string
+// InitDB initializes the database connection
+func (db *db) InitDB() error {
+	log.Println("Initializing database...")
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, user, password, dbname, sslmode)
+		db.host, db.port, db.user, db.password, db.name, db.sslmode)
 
 	var err error
 	DB, err = sql.Open("postgres", psqlInfo)
@@ -41,7 +54,7 @@ func InitDB() error {
 }
 
 // CloseDB closes the database connection
-func CloseDB() error {
+func (db *db) CloseDB() error {
 	if DB != nil {
 		return DB.Close()
 	}

@@ -6,8 +6,10 @@ Aplicación web de organización con backend en Go y frontend en Angular, incluy
 
 Requisitos mínimos:
 - Go 1.23+
-- Node.js 18+ y npm
-- Docker y Docker Compose
+- Node.js 18+
+- npm
+- Docker
+- Docker Compose
 
 ## Instalación
 
